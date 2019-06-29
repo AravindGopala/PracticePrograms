@@ -1,0 +1,3 @@
+/home/datla/Documents/Cpp/MergeSort/Debug/CMakeFiles/edit_cache.dir
+/home/datla/Documents/Cpp/MergeSort/Debug/CMakeFiles/rebuild_cache.dir
+/home/datla/Documents/Cpp/MergeSort/Debug/CMakeFiles/MergeSort.dir

@@ -1,0 +1,1 @@
+/usr/bin/g++   -std=c++14 -g  -rdynamic CMakeFiles/Observer_Pattern.dir/WeatherStation.cpp.o CMakeFiles/Observer_Pattern.dir/main.cpp.o  -o Observer_Pattern 

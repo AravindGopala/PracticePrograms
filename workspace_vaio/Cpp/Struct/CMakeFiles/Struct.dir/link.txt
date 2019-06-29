@@ -1,0 +1,1 @@
+/usr/bin/gcc  -g   CMakeFiles/Struct.dir/main.c.o  -o Struct -rdynamic 
