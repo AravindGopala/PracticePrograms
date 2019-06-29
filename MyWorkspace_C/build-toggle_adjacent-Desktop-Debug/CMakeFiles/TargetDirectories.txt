@@ -1,0 +1,3 @@
+/home/aravind/Documents/MyWorkspace_C/build-toggle_adjacent-Desktop-Debug/CMakeFiles/rebuild_cache.dir
+/home/aravind/Documents/MyWorkspace_C/build-toggle_adjacent-Desktop-Debug/CMakeFiles/toggle_adjacent.dir
+/home/aravind/Documents/MyWorkspace_C/build-toggle_adjacent-Desktop-Debug/CMakeFiles/edit_cache.dir

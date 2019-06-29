@@ -1,0 +1,1 @@
+/usr/bin/gcc-7 -g  -rdynamic CMakeFiles/toggle_adjacent.dir/main.c.o  -o toggle_adjacent 

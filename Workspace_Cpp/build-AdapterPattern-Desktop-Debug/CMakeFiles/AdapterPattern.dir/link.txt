@@ -1,0 +1,1 @@
+/usr/bin/g++-7   -std=c++14 -g  -rdynamic CMakeFiles/AdapterPattern.dir/Simulator.cpp.o  -o AdapterPattern 
