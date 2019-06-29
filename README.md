@@ -1,2 +1,0 @@
-# PracticePrograms
-Sample_Programs
