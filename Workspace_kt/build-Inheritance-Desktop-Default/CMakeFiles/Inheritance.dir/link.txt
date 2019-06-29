@@ -1,0 +1,1 @@
+/usr/bin/gcc   -rdynamic CMakeFiles/Inheritance.dir/main.c.o CMakeFiles/Inheritance.dir/person.c.o CMakeFiles/Inheritance.dir/employee.c.o  -o Inheritance 

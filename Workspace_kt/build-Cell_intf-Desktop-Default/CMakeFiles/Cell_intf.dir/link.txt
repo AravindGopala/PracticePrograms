@@ -1,0 +1,1 @@
+/usr/bin/gcc   -rdynamic CMakeFiles/Cell_intf.dir/main.c.o  -o Cell_intf 

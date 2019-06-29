@@ -1,0 +1,1 @@
+/usr/bin/gcc -g  -rdynamic CMakeFiles/memory_address.dir/main.c.o  -o memory_address 

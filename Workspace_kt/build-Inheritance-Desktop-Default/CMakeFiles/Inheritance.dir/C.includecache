@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/aravind/Documents/Workspace/Inheritance/employee.c
+include/employee.h
+/home/aravind/Documents/Workspace/Inheritance/include/employee.h
+
+/home/aravind/Documents/Workspace/Inheritance/include/employee.h
+person.h
+/home/aravind/Documents/Workspace/Inheritance/include/person.h
+
+/home/aravind/Documents/Workspace/Inheritance/include/person.h
+stdio.h
+-
+
+/home/aravind/Documents/Workspace/Inheritance/main.c
+stdio.h
+-
+include/employee.h
+/home/aravind/Documents/Workspace/Inheritance/include/employee.h
+memory.h
+-
+
+/home/aravind/Documents/Workspace/Inheritance/person.c
+include/person.h
+/home/aravind/Documents/Workspace/Inheritance/include/person.h
+

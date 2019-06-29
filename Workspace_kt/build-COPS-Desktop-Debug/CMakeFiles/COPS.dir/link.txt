@@ -1,0 +1,1 @@
+/usr/bin/gcc -g  -rdynamic CMakeFiles/COPS.dir/main.c.o  -o COPS 
