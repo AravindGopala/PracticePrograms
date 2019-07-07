@@ -1,0 +1,86 @@
+objdump -x main.o
+objdump -x a.out 
+nm a.out 
+objdump -D main.o
+objdump -s main.o
+objdump -s a.out 
+objdump -D a.out > objdump_D.txt
+objdump -s a.out | pager
+objdump -D a.out | pager
+objdump -D a.out 
+objdump -h a.out 
+readelf -l a.out 
+readelf -g a.out 
+readelf -S a.out 
+readelf -h a.out 
+readelf --help
+readelf --sections a.out
+objdump -all -S a.out 
+readelf --all --sections a.out
+readelf --segments a.out > segments.txt
+readelf --all ./sections
+readelf -all ./sections
+readelf --symbols a.out > symbols.txt
+readelf --sections a.out > symbols.txt
+readelf --sections a.out > sections.txt
+readelf --symbols a.out > sections.txt
+readelf -sections a.out > sections.txt
+objdump -S a.out > objdump_S.txt
+objdump -s a.out > objdump_s.txt
+objdump -d a.out 
+objdump -S main.o
+objdump -S a.out 
+sudo apt-get install sublime-text
+sudo apt-get update
+echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+sudo apt-get install sublime
+readelf --sections a.out 
+readelf -s a.out 
+readelf a.out 
+gedit analyze.txt 
+vi analyze.txt 
+objdump -S a.out > analyze.txt
+objdump -S a.out
+nm main.o
+g++ -c main.cpp
+gedit main.s
+nm --help
+objdump -S a.out | c++filt -t
+objdump -s a.out | c++filt -t
+objdump a.out | c++filt -t
+./a.out | c++filt -t
+objdump -l -S main.o
+
+objdump -S a.out | c++filt -t
+objdump -s a.out | c++filt -t
+objdump a.out | c++filt -t
+./a.out | c++filt -t
+objdump -l -S main.o
+g++ --help
+objdump -d -M intel -S main.o
+g++ -g -c main.cpp
+objdump --help
+g++ -O3 -c main.cpp
+objdump -d main.o
+objdump main.o
+vi main.o
+ls
+g++ -c main.cpp 
+nm --demangle=auto a.out 
+g++ -S main.cpp 
+ln a.out 
+g++ -time main.cpp 
+g++ -O3 -S main.cpp 
+g++ main.cpp 
+gedit -s main.cpp 
+gedit preprocessor.txt 
+g++ -E main.cpp > preprocessor.txt
+g++ -E main.cpp 
+g++
+g++ -a main.cpp
+./a.out 
+
+
+
+

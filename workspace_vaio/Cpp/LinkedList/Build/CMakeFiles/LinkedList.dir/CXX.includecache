@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/datla/Documents/Cpp/LinkedList/append.cpp
+
+/home/datla/Documents/Cpp/LinkedList/delete.cpp
+
+/home/datla/Documents/Cpp/LinkedList/main.cpp
+iostream
+-
+node.h
+/home/datla/Documents/Cpp/LinkedList/node.h
+
+/home/datla/Documents/Cpp/LinkedList/node.h
+

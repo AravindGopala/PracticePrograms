@@ -1,0 +1,1 @@
+/usr/bin/g++    -std=c++11 -g   CMakeFiles/LinkedList.dir/append.cpp.o CMakeFiles/LinkedList.dir/main.cpp.o CMakeFiles/LinkedList.dir/delete.cpp.o CMakeFiles/LinkedList.dir/node.cpp.o  -o LinkedList -rdynamic 

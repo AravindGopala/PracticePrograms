@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/IObserver.h
+
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/ISubject.h
+IObserver.h
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/IObserver.h
+
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/WeatherStation.cpp
+WeatherStation.h
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/WeatherStation.h
+algorithm
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/algorithm
+
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/WeatherStation.h
+ISubject.h
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/ISubject.h
+IObserver.h
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/IObserver.h
+vector
+-
+
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/main.cpp
+WeatherStation.h
+/home/datla/Documents/Workspace/Cpp/Observer_Pattern/WeatherStation.h
+memory
+-
+iostream
+-
+
