@@ -1,5 +1,5 @@
 #include <stdio.h>
-#define cal(trq) (int)((void*)&((*Sp).c)-((void*)Sp))
+#define cal(trq) (int)((void*)&((*Sp).p)-((void*)Sp))
 
 struct Structp
 {
