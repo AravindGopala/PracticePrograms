@@ -1,0 +1,52 @@
+{
+    "version": "2.0.0",
+    "presentation": {
+        "reveal": "silent",
+        "clear": true,
+        // "showReuseMessage": false,
+        // "close": true,
+    },
+
+    "tasks": [
+      {
+        "label": "Cargo_build",
+        "type": "shell",
+        "command": "cargo build --manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml",
+        "promptOnClose": true,
+        // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
+        // "cwd":"${workspaceFolder}",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+    ]
+}
+
+
+// Prompt on tasks build
+    //    {
+    //     "version": "2.0.0",
+    //     "tasks": [
+    //       {
+    //         "label": "cargo build",
+    //         "type": "shell",
+    //         "command": "cargo build",
+    //         "group": {
+    //           "kind": "build",
+    //           "isDefault": true
+    //         },
+    //         "problemMatcher": []
+    //       },
+    //       {
+    //         "label": "test",
+    //         "type": "shell",
+    //         "command": "cargo test",
+    //         "group": {
+    //           "kind": "test",
+    //           "isDefault": true
+    //         }
+    //       }
+    //     ]
+    //   }

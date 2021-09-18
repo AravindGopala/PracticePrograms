@@ -1,0 +1,50 @@
+// {
+//     // Use IntelliSense to learn about possible attributes.
+//     // Hover to view descriptions of existing attributes.
+//     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "type": "lldb",
+//             "request": "launch",
+//             "name": "Debug executable 'example'",
+//             "cargo": {
+//                 "cwd": "${workspaceFolder}/${relativeFileDirname}/..",
+//                 "args": [
+//                     "build",
+//                     // "--manifest-path=${cwd}/Cargo.toml",
+//                     // "--manifest-path=../Cargo.toml",
+//                 ],
+//             },
+//             // "program": "${workspaceFolder}/${relativeFileDirname}/../target/debug/${command:extension.commandvariable.file.fileDirBasename1Up}",
+//             "program": "${cargo:program}",
+//             "cwd": "${workspaceFolder}/${relativeFileDirname}/.."
+//         }
+//     ]
+// }
+
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Cargo_build",
+            "name": "Debug executable 'example'",
+            // "cargo": {
+            //     "cwd": "${workspaceFolder}",
+            //     "args": [
+            //         "build",
+            //         "--manifest-path=${cwd}/Rust/helloworld/Cargo.toml",
+            //         // "--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml",
+            //     ],
+            // },
+            // "program": "${workspaceFolder}/${relativeFileDirname}/../target/debug/${command:extension.commandvariable.file.fileDirBasename1Up}",
+            "program": "${workspaceFolder}/${relativeFileDirname}/../target/debug/${command:extension.commandvariable.file.fileDirBasename1Up}",
+            "cwd": "${workspaceFolder}/${relativeFileDirname}/.."
+        }
+    ]
+}
