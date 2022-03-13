@@ -42,10 +42,10 @@
             "echo": false,
             "reveal": "always",
             "focus": true,
-            "panel": "dedicated",
+            // "panel": "dedicated",
             "clear": true,
             "showReuseMessage": false,
-            // "close": true,
+            "close": false,
         },
         "problemMatcher": []
       },
