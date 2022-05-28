@@ -19,7 +19,7 @@
 
 				<!-- Header -->
 					<header id="header" class="alt">
-						<h1><a href="index.html">Spectral</a></h1>
+						<h1><a href="index.html">Profectura</a></h1>
 						<nav id="nav">
 							<ul>
 								<li class="special">
@@ -43,10 +43,10 @@
 						<div class="inner">
 							<h2>Profectura</h2>
 							<h3>COME FLY WITH US</h3>
-                            <p> Profectura is a New York based company offering unique solutions<br>
-                                 and a variety of services. </p>
-                            <p> Our business is setting the industry standards,<br>
-                                positioning us as category leaders worldwide
+							<p> Profectura is a New York based company offering unique solutions<br>
+								 and a variety of services. </p>
+							<p> Our business is setting the industry standards,<br>
+								positioning us as category leaders worldwide
 							<ul class="actions special">
 								<li><a href="activate.html" class="button primary">Activate</a></li>
 							</ul>
@@ -60,7 +60,7 @@
 							<header class="major">
 								<h2>OUR STORY</h2>
 								<p>We’re a young and talented group of entrepreneurs and engineers with a groundbreaking idea that we hope will contribute towards a better tomorrow. We provide smart solutions for companies of all sizes and pride ourselves on our unparalleled, dedicated service.
-                                   At Profectura, we believe that the right understanding and technological edge can lead companies towards a successful future. We always seek valuable feedback from our clients in order to learn and evolve. Contact us today to set up a meeting with one of our sales representatives or request a demo.</p>
+								   At Profectura, we believe that the right understanding and technological edge can lead companies towards a successful future. We always seek valuable feedback from our clients in order to learn and evolve. Contact us today to set up a meeting with one of our sales representatives or request a demo.</p>
 							</header>
 							<ul class="icons major">
 								<li><span class="icon fa-gem major style1"><span class="label">Lorem</span></span></li>
@@ -81,7 +81,7 @@
 						<section class="spotlight">
 							<div class="image"><img src="images/pic02.jpg" alt="" /></div><div class="content">
 								<h2>"Courage is resistance to fear, mastery of fear, not absence of fear"<br />
-                                   - Mark Twain</h2>
+								   - Mark Twain</h2>
 							</div>
 						</section>
 						<section class="spotlight">
@@ -133,14 +133,25 @@
 				<!-- CTA -->
 					<section id="cta" class="wrapper style4">
 						<div class="inner">
-							<header>
-								<h2>GET IN TOUCH</h2>
-								<!-- <p>Aliquam ut ex ut augue consectetur interdum endrerit imperdiet amet eleifend fringilla.</p> -->
-							</header>
-							<ul class="actions stacked">
-								<li><a href="#" class="button fit primary">Contact Us</a></li>
-								<li><a href="#" class="button fit">Learn More</a></li>
-							</ul>
+							<form action="https://formspree.io/your@email.com" method="POST">
+								<h1>GET IN TOUCH</h1>
+								<label for="name">Name:</label>
+								<input type="text" id="name" name="user_name" />
+								<label for="mail">E-mail:</label>
+								<input type="email" id="mail" name="user_mail" />
+								<label for="msg">Message:</label>
+								<textarea id="msg" name="user_message"></textarea>
+								<input type="hidden" name="_next" value="/thank-you" />
+								<br />
+								<br />
+								<button type="submit">Send your message</button>
+								<input
+								  type="hidden"
+								  name="_subject"
+								  value="New submission from contact form"
+								/>
+								<input type="hidden" name="_cc" value="another-email@email.com" />
+							  </form>
 						</div>
 					</section>
 
