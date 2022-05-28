@@ -1,4 +1,4 @@
-Spectral by HTML5 UP
+Profectura by HTML5 UP
 html5up.net | @ajlkn
 Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 
@@ -19,7 +19,7 @@ and an assortment of pre-styled elements. So, pretty much what you were expectin
 
 - A ton of other stuff.
 
-In short, Spectral's the culmination of several new things I'm working on/trying out,
+In short, Profectura's the culmination of several new things I'm working on/trying out,
 so please, let me know what you think :)
 
 Demo images* courtesy of Unsplash, a radtastic collection of CC0 (public domain) images
