@@ -1,28 +1,28 @@
-{
-    "version": "2.0.0",
-    "presentation": {
-        "reveal": "silent",
-        "clear": true,
-        // "showReuseMessage": false,
-        // "close": true,
-    },
+// {
+//     "version": "2.0.0",
+//     "presentation": {
+//         "reveal": "silent",
+//         "clear": true,
+//         // "showReuseMessage": false,
+//         // "close": true,
+//     },
 
-    "tasks": [
-      {
-        "label": "Cargo_build",
-        "type": "shell",
-        "command": "cargo build --manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml",
-        "promptOnClose": true,
-        // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
-        // "cwd":"${workspaceFolder}",
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": []
-      },
-    ]
-}
+//     "tasks": [
+//       {
+//         "label": "Cargo_build",
+//         "type": "shell",
+//         "command": "cargo build --manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml",
+//         "promptOnClose": true,
+//         // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
+//         // "cwd":"${workspaceFolder}",
+//         "group": {
+//           "kind": "build",
+//           "isDefault": true
+//         },
+//         "problemMatcher": []
+//       },
+//     ]
+// }
 
 
 // Prompt on tasks build
