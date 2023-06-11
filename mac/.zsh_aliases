@@ -1,3 +1,5 @@
+export PATH=$PATH:$HOME/.git-radar
+
 bindkey "^[[A" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
 setopt HIST_EXPIRE_DUPS_FIRST
@@ -31,7 +33,7 @@ alias tests='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-tests'
 alias bld='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/tools/build'
 alias dockers='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/tools/docker'
 alias qa='cd ~/code/Keeptruckin/lbb_qa/python/scripts/simulator'
-alias py='cd ~/code/Keeptruckin/lib_keeptruckin_python/dist'
+alias py='cd ~/code/Keeptruckin/lib_keeptruckin_python'
 alias lbb='cd ~/code/Keeptruckin/kt/src/embedded/lbb'
 alias stage='cd ~/code/Keeptruckin/kt/src/embedded/lbb/staging'
 alias bsp='cd ~/code/Keeptruckin/embedded-build'
@@ -40,11 +42,14 @@ can_ack(){
     ip link set can0 down; ip link set can0 up type can bitrate 500000 listen-only off
     ip link set can1 down; ip link set can1 up type can bitrate 500000 listen-only off
 }
+alias pyenv='cd /Users/aravind.datla/Documents/KT/Parse_Raw_logs; source .venv/bin/activate'
+
+alias bpy='pyenv;py;cd dist;pip3 uninstall $(ls -1);py;python3 setup.py bdist_wheel;cd dist;pip3 install $(ls -1)'
 
 sim_json() {
 cd ~/code/Keeptruckin/lbb_qa/
 # python/scripts/simulator/Simulation_Input_Configuration/json_profiles/eqa/current_consumption/low_power_current_consumption.json
-python3 python/scripts/simulator/Simulation_Input_Configuration/Test_JSON_Input.py -j "$1"
+python3 python/scripts/simulator/Simulation_Input_Configuration/Test_JSON_Input.py --station_config /Users/aravind.datla/code/KeepTruckin/test_bench/station_config.ini -j "$1"
 }
 source ~/code/Keeptruckin/kt/src/embedded/lbb/version.sh
 source ~/code/Keeptruckin/kt/src/embedded/vg/version.sh
@@ -110,6 +115,11 @@ done
 
 }
 
+# LBB_UTILS_CONTAINER_PATH="/kt/src/experimental/aravind/lbb"
+LBB_UTILS_CONTAINER_PATH="/lbb_utils"
+LBB_UTILS_HOST_PATH="/Users/aravind.datla/code/KeepTruckin/kt/src/experimental/aravind/lbb" # Hack for now, on fixing uncomment the below line
+# LBB_UTILS_HOST_PATH="/Users/aravind.datla/Documents/aravind/experimental/lbb"
+
 ############# MAC aliases ##################
 alias ubuntu_container_stop='colima ssh -- nerdctl stop ubuntu-focal'
 alias ubuntu_container_start='colima ssh -- nerdctl start ubuntu-focal'
@@ -128,7 +138,7 @@ stop_lbb(){
 }
 
 
-alias container_install_essentials='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/setup/;./setup_lbb_essentials.sh"'
+alias container_install_essentials='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/setup/;./setup_lbb_essentials.sh"'
 
 alias ubuntu_container_rm='colima ssh -- nerdctl rm ubuntu-focal'
 alias ubuntu_image_rm='colima ssh -- nerdctl image rm ubuntu-focal'
@@ -143,40 +153,40 @@ container_create()
 {
 colima ssh /bin/bash << EOF
 rm -rf /tmp/ubuntu_focal
-cd /Users/aravind.datla/code/Keeptruckin/kt/src/experimental/aravind/lbb/setup/container
+cd /Users/aravind.datla/Documents/aravind/experimental/lbb/setup/container
 cp -vr ubuntu_focal /tmp/
 ./setup_container.sh
 EOF
 container_install_essentials
 }
 
-alias clean_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./clean_lbb.sh"'
-alias get_lbb='cd /Users/aravind.datla/code/KeepTruckin/kt/src/experimental/aravind/lbb/get;./get.sh'
-alias toolchain_lbb='cd /Users/aravind.datla/code/KeepTruckin/kt/src/experimental/aravind/lbb/setup;./setup_toolchain.sh'
+alias clean_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
+alias get_lbb=' cd "$LBB_UTILS_HOST_PATH"/get;./get.sh'
+alias toolchain_lbb='cd "$LBB_UTILS_HOST_PATH"/setup;./setup_toolchain.sh'
 
 # bp to build the protobufs
 
 # Build svcs
-alias configure_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./configure_svcs.sh"'
+alias configure_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./configure_svcs.sh"'
 build_svcs(){
-source ~/code/Keeptruckin/kt/src/embedded/lbb/version.sh
-source ~/code/Keeptruckin/kt/src/embedded/vg/version.sh
-
-colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./build.sh"
+colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./build.sh"
 }
-alias clean_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./clean_svcs.sh"'
+# build_bsp(){
+# colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/bsp/build;./build.sh"
+# }
+alias clean_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_svcs.sh"'
 
 # Test svcs
-alias configure_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/test;./configure_tests.sh"'
-alias test_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/test/;./test.sh"'
-alias clean_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/test;./clean_tests.sh"'
+alias configure_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./configure_tests.sh"'
+alias test_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh"'
+alias clean_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./clean_tests.sh"'
 
 # Deploy svcs
-alias ota_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/deploy/;./deploy_all.sh"'
-alias ota_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/deploy/;./deploy_svcs.sh"'
+alias ota_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_all.sh"'
+alias ota_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_svcs.sh"'
 
 # cppcheck
-alias cppcheck_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/test;./cppcheck.sh"'
+alias cppcheck_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./cppcheck.sh"'
 
 rebuild_lbb(){
     clean_lbb
@@ -411,7 +421,7 @@ popd
 
 serial()
 {
-  putty -load LBB$1&	
+  putty -load LBB$1&    
 }
 
 #serial()
@@ -467,7 +477,7 @@ HISTCONTROL="erasedups:ignoreboth"
 
 # export PROMPT_DIRTRIM=2
 # autoload -U colors && colors
-export GIT_RADAR_COLOR_BRANCH='%B%F{cyan}'
+export GIT_RADAR_COLOR_BRANCH='%B%F{050}'
 #export GIT_RADAR_FORMAT='[%{remote} "%{branch}"%{local}%{changes}]'
 export GIT_RADAR_FORMAT='["%{branch}" %{local}%{changes}]'
 
@@ -481,10 +491,12 @@ export GIT_RADAR_FORMAT='["%{branch}" %{local}%{changes}]'
 #shopt -s cdspell 2> /dev/null
 set -o PROMPT_SUBST
 #PROMPT='${(r:$COLUMNS::— :)}'
-PROMPT=%D{%L:%M:%S}
+#PROMPT=%D{%L:%M:%S}
 #PROMPT='%F{cyan}${(r:$COLUMNS-10::— :)}'[%D{%L:%M:%S}]
-PROMPT='[%(?.%F{green}✔%b.%F{red}✘%b)%F{white}]%(?.%F{cyan}.%F{red})${(r:$COLUMNS-17::— :)}'[%D{%H:%M:%S.%.}]
-PROMPT=$PROMPT'%F{green}%n@~%F{208}{%1/%\}%F{white}'
+PROMPT='[%(?.%F{green}✔%b.%F{red}✘%b)%F{white}]%(?.%F{cyan}.%F{red})${(l:$COLUMNS-28::— :)}'[%W\ «%D{%H:%M:%S.%.}»]
+#PROMPT=$PROMPT'%F{green}%n@~%F{208}{%1/%\}%F{white}'
+PROMPT=$PROMPT'%F{118}%n@%F{208}{%(5~|~/.../%2~|%~)%\}%F{white}'
+# PROMPT=$PROMPT'%F{118}%n@%F{202}{%~%\}%F{white}'
 PROMPT=$PROMPT"\$(git-radar --zsh --fetch):» "
 
 # Aliases
@@ -629,12 +641,81 @@ cat ~/.aws/credentials
 echo "*******************************"
 }
 
+sync_lbb_bin(){
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_lbb_bin_files_to_host.sh"
+}
+
+
+cpbin(){
+    if [ -z "$2" ];then
+        echo "ERROR: Bin file cannot be empty"
+        return
+    fi
+    if [ -z "$3" ];then
+        SERVICE_NAME="$2"
+    else
+        SERVICE_NAME="$3"
+    fi
+
+    ssh -t $1 -o "ServerAliveInterval 2" 'echo "Datla";exit'
+
+    build_svcs
+    sync_lbb_bin
+    svcs;cd build-svcs
+    
+    file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs -type f -executable -name "$2" -not -path "CMake*")
+    if [ -z $file ];then
+      echo "ERROR: cannot find file $2"
+      return
+    fi
+    if [ $SERVICE_NAME != 'no' ];then
+        echo "stopping service $SERVICE_NAME"
+        ssh -t $1 -o "ServerAliveInterval 2" "systemctl stop $SERVICE_NAME;exit"
+    fi
+    scp $file $1:/usr/bin
+    if [ $SERVICE_NAME != 'no' ];then
+        echo "starting service $SERVICE_NAME"
+        ssh -t $1 -o "ServerAliveInterval 2" "systemctl start $SERVICE_NAME;exit"
+    fi
+}
+
+cpsrc(){
+    if [ -z "$2" ];then
+        echo "ERROR: Bin file cannot be empty"
+        return
+    fi
+    if [ -z "$3" ];then
+        SERVICE_NAME="no"
+    else
+        SERVICE_NAME="$3"
+    fi
+
+    ssh -t $1 -o "ServerAliveInterval 2" 'echo "Datla";exit'
+    
+    svcs
+    
+    file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs -type f -executable -name "$2" -not -path "CMake*")
+    if [ -z $file ];then
+      echo "ERROR: cannot find file $2"
+      return
+    fi
+    if [ $SERVICE_NAME != 'no' ];then
+        echo "stopping service $SERVICE_NAME"
+        ssh -t $1 -o "ServerAliveInterval 2" "systemctl stop $SERVICE_NAME;exit"
+    fi
+    scp $file $1:/usr/bin
+    if [ $SERVICE_NAME != 'no' ];then
+        echo "starting service $SERVICE_NAME"
+        ssh -t $1 -o "ServerAliveInterval 2" "systemctl start $SERVICE_NAME;exit"
+    fi
+}
+
 cpgps()
 {
   build_svcs
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktgpsd;exit'
   file_path="ktdaqd/sensors/gnss/ktgnssd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/gnss/ktgnssd $1:/usr/bin
 #  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/cell_init.sh $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktgpsd;exit'
@@ -645,7 +726,7 @@ cphwd()
   build_svcs
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop kthwd;exit'
   file_path="ktdaqd/nodes/kthw/kthwd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/kthw/kthwd $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start kthwd;exit'
 }
@@ -655,7 +736,7 @@ cpetap()
   build_svcs
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktetapd;exit'
   file_path="ktdaqd/nodes/etap/ktetapd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/etap/ktetapd $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktetapd;exit'
 }
@@ -672,10 +753,10 @@ cpsubs()
 {
   build_svcs
   file_path="ktdaqd/eventgen/test_apps/subsTest"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   file_path="kthw/hw_test/CellFreqTest"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/test_apps/subsTest $1:/usr/bin
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/kthw/hw_test/CellFreqTest $1:/usr/bin
@@ -689,7 +770,7 @@ cpcell()
   ssh -t $1 -o "ServerAliveInterval 2" 'cell_init.sh stop;exit'
   
   file_path="ktdaqd/sensors/cell/ktcelld"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/cell/ktcelld $1:/usr/bin
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/hw_scripts/*.s* $1:/usr/bin
@@ -701,7 +782,7 @@ cpstream()
   build_svcs
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktstreamd;exit'
   file_path="ktdaqd/eventgen/stream/ktstreamd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/stream/ktstreamd $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktstreamd;exit'
 }
@@ -711,13 +792,13 @@ cprelay()
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktrelayd;systemctl stop kteldd;systemctl stop ktrebootd;exit'
 
   file_path="ktrelayd/relay/ktrelayd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   file_path="ktdaqd/eventgen/eld/kteldd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   file_path="ktdaqd/eventgen/reboot/ktrebootd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktrelayd/relay/ktrelayd $1:/usr/bin
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/eld/kteldd $1:/usr/bin
@@ -730,13 +811,13 @@ cpiot()
   build_svcs
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktiotd;exit'
   file_path="ktrelayd/iot/ktiotd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./sync_built_file_from_vm.sh $file_path"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/$file_path $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktiotd;exit'
 }
 
-export GOPATH="$HOME/go"
-export PATH=$PATH:$GOPATH/bin
+#export GOPATH="$HOME/go"
+#export PATH=$PATH:$GOPATH/bin
 
 export CLICOLOR=1
 #LS_COLORS='rs=0:di=01;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:';
@@ -755,31 +836,30 @@ export SNOWFLAKE_ACCOUNT='keeptruckin'
 export SNOWFLAKE_USER='ADATLA'
 
 
-# alias ccl='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./clean_lbb.sh"'
-# alias cgl='cd /Users/aravind.datla/code/KeepTruckin/kt/src/experimental/aravind/lbb/get;./get.sh'
-# alias cst='cd /Users/aravind.datla/code/KeepTruckin/kt/src/experimental/aravind/lbb/setup;./setup_toolchain.sh'
+# alias ccl='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
+# alias cgl='cd /Users/aravind.datla/code/KeepTruckin$LBB_UTILS_CONTAINER_PATH/get;./get.sh'
+# alias cst='cd /Users/aravind.datla/code/KeepTruckin$LBB_UTILS_CONTAINER_PATH/setup;./setup_toolchain.sh'
 # # bp to build the protobufs
 
 # # Build svcs
-# alias ccs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./configure_svcs.sh"'
-# alias cbs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./build.sh"'
-# alias csc='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/build;./clean_svcs.sh"'
+# alias ccs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./configure_svcs.sh"'
+# alias cbs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./build.sh"'
+# alias csc='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_svcs.sh"'
 
 # # Test svcs
-# alias cct='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/test;./configure_tests.sh"'
-# alias cts='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/test/;./test.sh"'
-# alias ctc='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/test;./clean_tests.sh"'
+# alias cct='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./configure_tests.sh"'
+# alias cts='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh"'
+# alias ctc='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./clean_tests.sh"'
 
 # # Deploy svcs
-# alias cdl='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/deploy/;./deploy_all.sh"'
-# alias cds='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/deploy/;./deploy_svcs.sh"'
+# alias cdl='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_all.sh"'
+# alias cds='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_svcs.sh"'
 
 # # cppcheck
-# alias cps='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/lbb/test;./cppcheck.sh"'
+# alias cps='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./cppcheck.sh"'
 
 source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-alias myenv='cd /Users/aravind.datla/Documents/KT/Parse_Raw_logs; source .venv/bin/activate'
 # Snowflake Credentials
 # export SNOWFLAKE_URL='keeptruckin.snowflakecomputing.com'
 # export SNOWFLAKE_ACCOUNT='keeptruckin'
