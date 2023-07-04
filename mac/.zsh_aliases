@@ -35,7 +35,8 @@ alias dockers='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/tools/docker'
 alias qa='cd ~/code/Keeptruckin/lbb_qa/python/scripts/simulator'
 alias py='cd ~/code/Keeptruckin/lib_keeptruckin_python'
 alias lbb='cd ~/code/Keeptruckin/kt/src/embedded/lbb'
-alias stage='cd ~/code/Keeptruckin/kt/src/embedded/lbb/staging'
+alias staging='cd ~/code/Keeptruckin/kt/src/embedded/lbb/staging'
+alias vg='cd ~/code/Keeptruckin/kt/src/embedded/vg'
 alias bsp='cd ~/code/Keeptruckin/embedded-build'
 
 can_ack(){
@@ -45,6 +46,11 @@ can_ack(){
 alias pyenv='cd /Users/aravind.datla/Documents/KT/Parse_Raw_logs; source .venv/bin/activate'
 
 alias bpy='pyenv;py;cd dist;pip3 uninstall $(ls -1);py;python3 setup.py bdist_wheel;cd dist;pip3 install $(ls -1)'
+
+export_lbb_version_info(){
+    source ~/code/Keeptruckin/kt/src/embedded/lbb/version.sh
+    source ~/code/Keeptruckin/kt/src/embedded/vg/version.sh
+}
 
 sim_json() {
 cd ~/code/Keeptruckin/lbb_qa/
@@ -161,14 +167,15 @@ container_install_essentials
 }
 
 alias clean_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
-alias get_lbb=' cd "$LBB_UTILS_HOST_PATH"/get;./get.sh'
 alias toolchain_lbb='cd "$LBB_UTILS_HOST_PATH"/setup;./setup_toolchain.sh'
+alias get_lbb='cd "$LBB_UTILS_HOST_PATH"/get;./get.sh;toolchain_lbb'
 
 # bp to build the protobufs
 
 # Build svcs
 alias configure_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./configure_svcs.sh"'
 build_svcs(){
+export_lbb_version_info
 colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./build.sh"
 }
 # build_bsp(){
@@ -184,9 +191,19 @@ alias clean_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_
 # Deploy svcs
 alias ota_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_all.sh"'
 alias ota_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_svcs.sh"'
+alias ota_switch='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_switch.sh"'
 
 # cppcheck
 alias cppcheck_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./cppcheck.sh"'
+
+alias dbs='build_svcs'
+alias dbc='clean_svcs'
+alias dts='test_svcs'
+alias dtc='clean_tests'
+alias dtb='configure_tests'
+alias dcpp='cppcheck_svcs'
+alias rbs='dbc;dbs'
+alias rbt='dtc;dts'
 
 rebuild_lbb(){
     clean_lbb
@@ -421,7 +438,7 @@ popd
 
 serial()
 {
-  putty -load LBB$1&    
+  putty -load LBB$1&	
 }
 
 #serial()
@@ -476,8 +493,8 @@ HISTTIMEFORMAT="[%F %T] "
 HISTCONTROL="erasedups:ignoreboth"
 
 # export PROMPT_DIRTRIM=2
-# autoload -U colors && colors
-export GIT_RADAR_COLOR_BRANCH='%B%F{050}'
+# autoload -U colors && colors, 050, 045
+export GIT_RADAR_COLOR_BRANCH='%B%F{045}'
 #export GIT_RADAR_FORMAT='[%{remote} "%{branch}"%{local}%{changes}]'
 export GIT_RADAR_FORMAT='["%{branch}" %{local}%{changes}]'
 
@@ -495,6 +512,7 @@ set -o PROMPT_SUBST
 #PROMPT='%F{cyan}${(r:$COLUMNS-10::— :)}'[%D{%L:%M:%S}]
 PROMPT='[%(?.%F{green}✔%b.%F{red}✘%b)%F{white}]%(?.%F{cyan}.%F{red})${(l:$COLUMNS-28::— :)}'[%W\ «%D{%H:%M:%S.%.}»]
 #PROMPT=$PROMPT'%F{green}%n@~%F{208}{%1/%\}%F{white}'
+#011
 PROMPT=$PROMPT'%F{118}%n@%F{208}{%(5~|~/.../%2~|%~)%\}%F{white}'
 # PROMPT=$PROMPT'%F{118}%n@%F{202}{%~%\}%F{white}'
 PROMPT=$PROMPT"\$(git-radar --zsh --fetch):» "
@@ -645,7 +663,6 @@ sync_lbb_bin(){
   colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_lbb_bin_files_to_host.sh"
 }
 
-
 cpbin(){
     if [ -z "$2" ];then
         echo "ERROR: Bin file cannot be empty"
@@ -663,7 +680,7 @@ cpbin(){
     sync_lbb_bin
     svcs;cd build-svcs
     
-    file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs -type f -executable -name "$2" -not -path "CMake*")
+    file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs -type f -executable -name "$2" -not -path "CMake*" -not -path "./deploy/*")
     if [ -z $file ];then
       echo "ERROR: cannot find file $2"
       return
@@ -694,7 +711,7 @@ cpsrc(){
     
     svcs
     
-    file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs -type f -executable -name "$2" -not -path "CMake*")
+    file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs -type f -name "$2" -not -path "CMake*" -not -path "./build-svcs/*" ! -path "*/deploy/*")
     if [ -z $file ];then
       echo "ERROR: cannot find file $2"
       return
@@ -703,7 +720,7 @@ cpsrc(){
         echo "stopping service $SERVICE_NAME"
         ssh -t $1 -o "ServerAliveInterval 2" "systemctl stop $SERVICE_NAME;exit"
     fi
-    scp $file $1:/usr/bin
+    scp $file $1:/usr/bin/
     if [ $SERVICE_NAME != 'no' ];then
         echo "starting service $SERVICE_NAME"
         ssh -t $1 -o "ServerAliveInterval 2" "systemctl start $SERVICE_NAME;exit"
@@ -814,6 +831,12 @@ cpiot()
   colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/$file_path $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktiotd;exit'
+}
+
+lbb_get_journal()
+{
+    ssh -t $1 -o "ServerAliveInterval 2" 'cd /tmp;journalctl -b 0 -a > lbb_journal_$(lbb_info.sh | grep SERIAL_NUMBER | cut -d " " -f 2)_$(date +%s).log;exit'
+    scp $1:"/tmp/lbb_journal_*.log" ~/Downloads/lbb_logs/
 }
 
 #export GOPATH="$HOME/go"
