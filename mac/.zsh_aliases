@@ -1,0 +1,956 @@
+export PATH=$PATH:$HOME/.git-radar
+
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+# setopt inc_append_history
+setopt share_history
+export HISTFILESIZE=1000000000
+export HISTSIZE=1000000000
+autoload -Uz compinit && compinit
+
+alias subl='open -a "Sublime Text"'
+
+#KT
+alias mo='cd ~/code/Keeptruckin/kt'
+alias em='cd ~/code/Keeptruckin/kt/src/embedded'
+alias sdk='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk'
+alias am335x='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/am335x'
+alias drivers='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/drivers'
+alias kernel='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/lbbkernel'
+alias svcs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs'
+alias tools='cd ~/code/Keeptruckin/kt/src/embedded/tools'
+alias libs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/libs'
+alias fs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/fs'
+alias uboot='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/u-boot'
+alias sysroot='cd ~/k2labs/sysroot'
+alias tests='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-tests'
+alias bld='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/tools/build'
+alias dockers='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/tools/docker'
+alias qa='cd ~/code/Keeptruckin/lbb_qa/python/scripts/simulator'
+alias py='cd ~/code/Keeptruckin/lib_keeptruckin_python'
+alias lbb='cd ~/code/Keeptruckin/kt/src/embedded/lbb'
+alias staging='cd ~/code/Keeptruckin/kt/src/embedded/lbb/staging'
+alias vg='cd ~/code/Keeptruckin/kt/src/embedded/vg'
+alias bsp='cd ~/code/Keeptruckin/embedded-build'
+
+can_ack(){
+    ip link set can0 down; ip link set can0 up type can bitrate 500000 listen-only off
+    ip link set can1 down; ip link set can1 up type can bitrate 500000 listen-only off
+}
+alias pyenv='cd $HOME/Documents/KT/Parse_Raw_logs; source .venv/bin/activate'
+
+alias bpy='pyenv;py;cd dist;pip3 uninstall $(ls -1);rm -rf $(ls -1);py;python3 setup.py bdist_wheel;cd dist;pip3 install $(ls -1)'
+
+export_lbb_version_info(){
+    source ~/code/Keeptruckin/kt/src/embedded/lbb/version.sh
+    source ~/code/Keeptruckin/kt/src/embedded/vg/version.sh
+}
+
+sim_json() {
+cd ~/code/Keeptruckin/lbb_qa/
+# python/scripts/simulator/Simulation_Input_Configuration/json_profiles/eqa/current_consumption/low_power_current_consumption.json
+python3 python/scripts/simulator/Simulation_Input_Configuration/Test_JSON_Input.py --station_config $HOME/code/KeepTruckin/test_bench/station_config.ini -j "$1"
+}
+
+source ~/code/Keeptruckin/kt/src/embedded/lbb/version.sh
+source ~/code/Keeptruckin/kt/src/embedded/vg/version.sh
+KTMR_PATH="$HOME/code/Keeptruckin/kt"
+EMBEDDED_PATH="${KTMR_PATH}/src/embedded"
+EXTERNS_PATH="${EMBEDDED_PATH}/externs"
+EXTERNS_NIX_STORE_PATH="${EXTERNS_PATH}/nix/store"
+PROTOC_PATH="$(nix-build $HOME/code/Keeptruckin/kt/external/nixpkgs/import.nix --no-out-link -A protobuf3_13)"
+PROTOC_EXTERNS_PATH="${EXTERNS_PATH}${PROTOC_PATH}"
+PROTOC_BIN_PATH="${PROTOC_PATH}/bin"
+PROTOC_SOURCE_PATH="${PROTOC_PATH}/include"
+
+NANOPB_PATH="$(nix-build $HOME/code/Keeptruckin/kt/external/nixpkgs/import.nix --no-out-link -A nanopb)"
+NANOPB_EXTERNS_PATH="${EXTERNS_PATH}${NANOPB_PATH}"
+NANOPB_BIN_PATH="${NANOPB_PATH}/bin"
+NANOPB_SOURCE_PATH="${NANOPB_PATH}/include"
+
+bp(){
+    pushd $HOME/code/KeepTruckin/kt/src > /dev/null
+    bash $HOME/Documents/aravind/experimental/lbb/build/build_proto.sh
+    popd > /dev/null
+}
+# bp()
+# {
+# # build the google 
+# typeset -a GOOGLE_PROTO_LIST
+# GOOGLE_PROTO_LIST=$(find ${EXTERNS_PATH} -type f -name '*.proto')
+
+# for file in $(find ${EXTERNS_PATH} -type f -name '*.proto'); do
+#     # only run protoc if the generated file is older than the .proto file
+#     rm -f "${file%.*}.pb.c"
+#     rm -f "${file%.*}.pb.h"
+#     filepath=`dirname "$file"`
+#     filename=`basename "$file"`
+#     echo "Build ${filename}"
+#     protoc --proto_path="${filepath}" --nanopb_out="${filepath}" "${filename}"
+# done
+
+# PROTO_PATH="${KTMR_PATH}/src"
+# PROTO_EMBEDDED_PATH="proto/embedded"
+# PROTO_EMBEDDED_LIST=$(cd ${PROTO_PATH} && find ${PROTO_EMBEDDED_PATH} -type f -name '*.proto')
+# PROTO_FIS_PATH="proto/platform/services/fileingestion"
+# for file in $(cd ${PROTO_PATH} && find ${PROTO_FIS_PATH} -type f -name '*.proto'); do
+#     # only run protoc if the generated file is older than the .proto file
+#         rm -f "${PROTO_PATH}/${file%.*}.pb.c"
+#         rm -f "${PROTO_PATH}/${file%.*}.pb.h"
+#         rm -f "${PROTO_PATH}/${file%.*}_pb2.py"
+#         filepath=`dirname "$file"`
+#         filename=`basename "$file"`
+#         options_file="${file%.*}.options"
+#         echo "Build ${file}"
+#         protoc --proto_path="${PROTO_PATH}" --nanopb_out="-I${PROTO_PATH}:${PROTO_PATH}/" "${file}"
+#         protoc --proto_path="${PROTO_PATH}" --python_out="${PROTO_PATH}/" "${file}"
+# done
+
+# for file in $(cd ${PROTO_PATH} && find ${PROTO_EMBEDDED_PATH} -type f -name '*.proto'); do
+#     # only run protoc if the generated file is older than the .proto file
+#         rm -f "${PROTO_PATH}/${file%.*}.pb.c"
+#         rm -f "${PROTO_PATH}/${file%.*}.pb.h"
+#         rm -f "${PROTO_PATH}/${file%.*}_pb2.py"
+#         filepath=`dirname "$file"`
+#         filename=`basename "$file"`
+#         options_file="${file%.*}.options"
+#         echo "Build ${file}"
+#         protoc --proto_path="${PROTO_PATH}" --nanopb_out="-I${PROTO_PATH}:${PROTO_PATH}/" "${file}"
+#         protoc --proto_path="${PROTO_PATH}" --python_out="${PROTO_PATH}/" "${file}"
+# done
+
+# }
+
+# LBB_UTILS_CONTAINER_PATH="/kt/src/experimental/aravind/lbb"
+LBB_UTILS_CONTAINER_PATH="/lbb_utils"
+LBB_UTILS_HOST_PATH="$HOME/code/KeepTruckin/kt/src/experimental/aravind/lbb" # Hack for now, on fixing uncomment the below line
+NEW_LBB_UTILS_HOST_PATH="$HOME/Documents/aravind/experimental/lbb"
+
+############# MAC aliases ##################
+alias ubuntu_container_stop='colima ssh -- nerdctl stop ubuntu-focal'
+alias ubuntu_container_start='colima ssh -- nerdctl start ubuntu-focal'
+start_lbb()
+{
+    if [ -n "$1" ];then
+        sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /usr/libexec/bootpd
+        sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblock /usr/libexec/bootpd
+        sudo ifconfig en7 down
+        sudo ifconfig en7 up
+    fi
+    colima start
+    ubuntu_container_start
+}
+
+stop_lbb(){
+    ubuntu_container_stop
+    colima stop
+}
+
+
+alias container_install_essentials='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/setup/;./setup_lbb_essentials.sh"'
+
+alias ubuntu_container_rm='colima ssh -- nerdctl rm ubuntu-focal'
+alias ubuntu_image_rm='colima ssh -- nerdctl image rm ubuntu-focal'
+
+container_remove(){
+    ubuntu_container_stop
+    ubuntu_container_rm
+    ubuntu_image_rm
+}
+
+container_create()
+{
+colima ssh /bin/bash << EOF
+rm -rf /tmp/ubuntu_focal
+cd $HOME/Documents/aravind/experimental/lbb/setup/container
+cp -vr ubuntu_focal /tmp/
+./setup_container.sh
+EOF
+container_install_essentials
+}
+
+scan_my_wifi(){
+    rustscan -a 192.168.0.0/24 -p 22 -g
+}
+
+alias clean_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
+alias toolchain_lbb='cd "$NEW_LBB_UTILS_HOST_PATH"/setup;./setup_toolchain.sh'
+
+get_lbb(){
+pushd "$LBB_UTILS_HOST_PATH"/get
+./get.sh || {echo "-------- Correct errors! --------" && return 1;};
+toolchain_lbb
+popd
+}
+
+get_lbb_sd(){
+pushd "$LBB_UTILS_HOST_PATH"/get
+./get-sd.sh  || {echo "-------- Correct errors! --------" && return 1;};
+popd
+}
+
+sync_lbb_artifacts(){
+    aws s3 sync s3://keep-truckin-iot/embedded-firmwares/"$1"/ ~/Downloads/
+}
+
+# bp to build the protobufs
+
+# Build svcs
+alias configure_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./configure_svcs.sh"'
+build_svcs(){
+export_lbb_version_info
+colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./build.sh"
+}
+# build_bsp(){
+# colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/bsp/build;./build.sh"
+# }
+alias clean_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_svcs.sh"'
+
+# Test svcs
+alias configure_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./configure_tests.sh"'
+alias test_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh"'
+alias test_svcs_random='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh vr"'
+
+alias clean_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./clean_tests.sh"'
+alias shellcheck_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./pipeline.sh"'
+
+
+# Deploy svcs
+alias ota_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_all.sh"'
+alias ota_bsp='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_bsp.sh"'
+alias ota_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_svcs.sh"'
+alias ota_switch='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_switch.sh"'
+alias ota_sd='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_sd.sh"'
+
+
+# cppcheck
+alias cppcheck_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./cppcheck.sh"'
+
+
+alias dbs='build_svcs'
+alias dbc='clean_svcs'
+dall()
+{
+ test_svcs || return 1
+ shellcheck_lbb || return 1
+ cppcheck_svcs
+}
+
+alias dtc='clean_tests'
+alias dts='test_svcs'
+alias dtb='configure_tests'
+alias dcpp='cppcheck_svcs'
+alias rbs='dbc;dbs'
+alias rbt='dtc;dts'
+
+rebuild_lbb(){
+    clean_lbb
+    get_lbb
+    toolchain_lbb
+    configure_svcs
+    build_svcs
+    configure_tests
+    run_tests
+    cppcheck_svcs
+}
+
+pr_lbb(){
+    build_svcs
+    test_svcs
+    cppcheck_svcs
+}
+
+alias ks='pkill SCREEN'
+alias slbb='cd ~/Documents;screen -D -R -A -L /dev/tty.usbserial-AU05KPXF 115200'
+alias slbb1='cd ~/Documents;screen -D -R -A -L /dev/cu.usbserial-AU04DFW9 115200'
+
+#alias ks='pkill SCREEN'
+
+fw_upload_s3 (){
+if [ ! -f fwu_result ];then
+  echo "ERROR fwu_result not present in current dir"
+fi
+if [ ! -f lbb_fw.ktz ];then
+  echo "ERROR fwu_result not present in current dir"
+fi
+aws s3 cp lbb_fw.ktz s3://aravind-aws-test/lbb/firmwares/$1/$2/
+aws s3 cp fwu_result s3://aravind-aws-test/lbb/firmwares/$1/$2/
+}
+
+alias ssh_colima='ssh lima@0.0.0.0 -p 23'
+
+cps()
+{
+  scp $1 $2:/var/tmp/
+}
+cpvar()
+{
+  scp lbb_fw.ktz fwu_result $1:/motive/data/cache/update/
+}
+
+#alias bs='pushd .;bld;./services.sh config;./services.sh rebuild;popd'
+
+
+alias ts='sdk;source setup_env develop;./tools/docker/docker_run.sh test services'
+fw()
+{
+  if [ "$1" = "all" ];then
+    ota_lbb
+  elif [ "$1" = "bsp" ];then
+    ota_bsp
+  else
+    ota_svcs
+  fi
+}
+
+fwr()
+{
+  if [ "$1" = "all" ];then
+    ota_lbb
+  elif [ "$1" = "bsp" ];then
+    ota_bsp
+  else
+    ota_svcs
+  fi
+}
+
+cpfw()
+{
+scp ~/code/Keeptruckin/kt/src/embedded/ota/$1/REL/fwu_result lbbdev@lbbDUT:/var/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/ota/$1/REL/lbb_fw.ktz lbbdev@lbbDUT:/var/cache/update/
+ssh -t lbbdev@lbbDUT -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+tty()
+{
+ putty -load LBB$1
+}
+
+cpsw()
+{
+#scp ~/code/Keeptruckin/kt/src/embedded/ota/$1/REL/fwu_result lbbdev@lbbSIM:/var/cache/update/
+#scp ~/code/Keeptruckin/kt/src/embedded/ota/$1/REL/lbb_fw.ktz lbbdev@lbbSIM:/var/cache/update/
+#ssh -t lbbdev@lbbSIM -o "ServerAliveInterval 2" 'sudo reboot;exit'
+
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbSIM:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbSIM:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result root@lbbSIM:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/lbb_fw.ktz root@lbbSIM:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result
+fi
+}
+
+cpsr()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result root@lbbSIM:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/lbb_fw.ktz root@lbbSIM:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result root@lbbSIM:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/lbb_fw.ktz root@lbbSIM:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result
+fi
+}
+
+cphw()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result
+fi
+
+#ssh -t root@lbbHome -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+cphr()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result
+fi
+
+#ssh -t root@lbbHome -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+cpwi()
+{
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbWifi:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result
+#ssh -t lbbdev@lbbWifi -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+cpwr()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result root@lbbWifi:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result root@lbbWifi:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result
+fi
+
+#ssh -t lbbdev@lbbWifi -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+alias canup='sudo ip link set can0 up type can bitrate 250000;ifconfig'
+alias candown='sudo ip link set can0 down'
+
+copy_simlnk()
+{
+for f in $(find -L ${KTMR_PATH}/src/bazel-bin -xtype l)
+do
+    SYMLINK_PATH=$(readlink $f)
+    rm $f
+    cp -r $SYMLINK_PATH $f
+    # echo $f
+done
+}
+pdh()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/demo.py -c host.ini -i $1 -s $2 -e $3
+popd
+}
+
+plh()
+{
+pushd
+python ~/code/Keeptruckin/kt/src/embedded/scripts/vehicle/view_veh_data.py -i $1 -s $2 -e $3
+popd
+}
+plp()
+{
+pushd
+python ~/code/Keeptruckin/kt/src/embedded/scripts/vehicle/view_veh_data.py -i $1 -s $2 -e $3
+popd
+}
+
+pch()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/view_cell_data.py -c host.ini -i $1 -s $2 -e $3
+popd
+}
+pcp()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/view_cell_data.py -c preview.ini -i $1 -s $2 -e $3
+popd
+}
+
+pgh()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/view_gps_data.py -c host.ini -i $1 -s $2 -e $3
+popd
+}
+
+pgp()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/view_gps_data.py -c preview.ini -i $1 -s $2 -e $3
+popd
+}
+
+vehsim_start(){
+    ssh -t root@$1 -o "systemctl start vehsim"
+}
+
+engine_start(){
+    echo "engine@1000 rpm"
+    ssh -t root@$1 -o "ServerAliveInterval 2" "sqlite3 -line /motive/data/cache/vehicle_sim.sqlite 'INSERT INTO vehicle_param values (1000, 0, 13.2, 0.8);'"
+}
+
+engine_stop(){
+    echo "engine stopped"
+    ssh -t root@$1 -o "ServerAliveInterval 2" "sqlite3 -line /motive/data/cache/vehicle_sim.sqlite 'INSERT INTO vehicle_param values (0, 0, 12.2, 0.8);'"
+}
+
+
+vehicle_start(){
+    echo "Vehicle started moving @10 kmph"
+    ssh -t root@$1 -o "ServerAliveInterval 2" "sqlite3 -line /motive/data/cache/vehicle_sim.sqlite 'INSERT INTO vehicle_param values (1000, 10, 13.2, 0.8);'"
+}
+
+vehicle_stop(){
+    echo "Vehicle stopped moving"
+    ssh -t root@$1 -o "ServerAliveInterval 2" "sqlite3 -line /motive/data/cache/vehicle_sim.sqlite 'INSERT INTO vehicle_param values (1000, 0, 13.2, 0.8);'"
+}
+
+
+serial()
+{
+  putty -load LBB$1&	
+}
+
+#serial()
+#{
+ #socat - /dev/ttyUSB$1
+#}
+
+coverage()
+{
+    COVERAGE_DIR="lbb/coverage"
+    rm -rf "${LBB_HOME}/${COVERAGE_DIR}/*"
+    # Generate coverage data directory on success
+    mkdir -p "${COVERAGE_DIR}"
+
+    # Create coverage
+    lcov  --capture --directory "${LBB_SVCS_TEST_PATH}" --remove "${COVERAGE_DIR}"/svcs_test.info \
+        '/usr/include/*' '/usr/local/*' '*test*.c' '*/fakes/*' '*.h' '*/externs/*' \
+        -o "${COVERAGE_DIR}"/svcs_filtered.info
+
+
+    # Generate html output
+    CUR_SHA=$(git rev-parse --short HEAD)
+    CUR_BRCH=$(git rev-parse --abbrev-ref HEAD)
+    genhtml --ignore-errors source "${COVERAGE_DIR}"/svcs_filtered.info \
+        --title "${CUR_BRCH}, SHA ${CUR_SHA}" \
+        --output-directory="${COVERAGE_DIR}"/svcs_report
+}
+
+#alias build_svcs='sdk;source setup_env develop;./tools/docker/docker_run.sh bash; bs'
+alias masterlbbsdk='sdk;gr;pullM'
+alias masteram335x='am335x;gr;pullM'
+alias masterdrivers='drivers;gr;pullM'
+alias masterlbbkernel='lbbkernel;gr;pullM'
+alias mastersvcs='svcs;gr;pullM'
+alias mastertools='tools;gr;pullM'
+alias masterfs='fs;gr;pullM'
+alias masteruboot='uboot;gr;pullM'
+alias mastersysroot='sysroot;gr;pullM'
+alias masterlibs='libs;gr;pullM'
+alias tfw='bs;fw;cpfw $LBB_VERSION;vim ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/ota/64000/REL/fwu_result'
+alias masterall='tools;./git/pull_all.sh;./git/checkout_all.sh master;./git/status_all.sh'
+alias developall='tools;./git/pull_all.sh;./git/checkout_all.sh develop;./git/status_all.sh'
+alias stagingall='tools;./git/pull_all.sh;./git/checkout_all.sh staging;./git/status_all.sh'
+alias statusall='tools;./git/status_all.sh'
+
+
+HISTSIZE=500000
+HISTFILESIZE=100000
+HISTTIMEFORMAT="[%F %T] "
+
+# Avoid duplicate entries
+HISTCONTROL="erasedups:ignoreboth"
+
+# export PROMPT_DIRTRIM=2
+# autoload -U colors && colors, 050, 045
+export GIT_RADAR_COLOR_BRANCH='%B%F{045}'
+#export GIT_RADAR_FORMAT='[%{remote} "%{branch}"%{local}%{changes}]'
+export GIT_RADAR_FORMAT='["%{branch}" %{local}%{changes}]'
+
+# Prepend cd to directory names automatically
+#shopt -s autocd 2> /dev/null
+# Correct spelling errors during tab-completion
+#shopt -s dirspell 2> /dev/null
+
+#
+# Correct spelling errors in arguments supplied to cd
+#shopt -s cdspell 2> /dev/null
+set -o PROMPT_SUBST
+#PROMPT='${(r:$COLUMNS::— :)}'
+#PROMPT=%D{%L:%M:%S}
+#PROMPT='%F{cyan}${(r:$COLUMNS-10::— :)}'[%D{%L:%M:%S}]
+PROMPT='[%(?.%F{green}✔%b.%F{red}✘%b)%F{white}]%(?.%F{cyan}.%F{red})${(l:$COLUMNS-28::— :)}'[%W\ «%D{%H:%M:%S.%.}»]
+#PROMPT=$PROMPT'%F{green}%n@~%F{208}{%1/%\}%F{white}'
+#011
+PROMPT=$PROMPT'%F{118}%n@%F{208}{%(5~|~/.../%2~|%~)%\}%F{white}'
+# PROMPT=$PROMPT'%F{118}%n@%F{202}{%~%\}%F{white}'
+PROMPT=$PROMPT"\$(git-radar --zsh --fetch):» "
+
+# Aliases
+alias gcl='git clone'
+alias ga='git add'
+alias grm='git rm'
+alias gap='git add -p'
+alias gall='git add -A'
+alias gf='git fetch --all --prune'
+alias gft='git fetch --all --prune --tags'
+alias gfv='git fetch --all --prune --verbose'
+alias gftv='git fetch --all --prune --tags --verbose'
+alias gus='git reset HEAD'
+alias gpristine='git reset --hard && git clean -dfx'
+alias gclean='git clean -fd'
+alias gm="git merge"
+alias gmv='git mv'
+alias g='git'
+alias get='git'
+alias gst='git status'
+alias gs='git status'
+alias gss='git status -s'
+alias gsu='git submodule update --init --recursive'
+alias gl='git pull'
+alias glum='git pull upstream master'
+alias gpr='git pull --rebase'
+alias gpp='git pull && git push'
+alias gup='git fetch && git rebase'
+alias gp='git push'
+alias gpo='git push origin'
+alias gpu='git push --set-upstream'
+alias gpuo='git push --set-upstream origin'
+alias gpom='git push origin master'
+alias gr='git remote'
+alias grv='git remote -v'
+alias gra='git remote add'
+alias gd='git diff'
+alias gdv='git diff -w "$@" | vim -R -'
+alias gca='git commit -v -a'
+alias gcm='git commit -v -m'
+alias gcam="git commit -v -am"
+alias gci='git commit --interactive'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbt='git branch --track'
+alias gbm='git branch -m'
+alias gbd='git branch -d'
+alias gbdo='git push origin --delete'
+alias gbD='git branch -D'
+alias gcount='git shortlog -sn'
+alias gcp='git cherry-pick'
+alias gco='git checkout'
+alias gcom='git checkout master'
+alias gcb='git checkout -b'
+alias gcob='git checkout -b'
+alias gct='git checkout --track'
+alias gexport='git archive --format zip --output'
+alias gdel='git branch -D'
+alias gmu='git fetch origin -v; git fetch upstream -v; git merge upstream/master'
+alias gll='git log --graph --pretty=oneline --abbrev-commit'
+alias glg='git log --graph --full-history --all --color --pretty=format:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s"'
+alias gg="git log --graph --pretty=format:'%C(bold)%h%Creset%C(magenta)%d%Creset %s %C(yellow)<%an> %C(cyan)(%cr)%Creset' --abbrev-commit --date=relative"
+alias ggs="gg --stat"
+alias gsl="git shortlog -sn"
+alias gwc="git whatchanged"
+alias gt="git tag"
+alias gta="git tag -a"
+alias gtd="git tag -d"
+alias gtl="git tag -l"
+# From http://blogs.atlassian.com/2014/10/advanced-git-aliases/
+# Show commits since last pull
+alias gnew="git log HEAD@{1}..HEAD@{0}"
+# Add uncommitted and unstaged changes to the last commit
+alias gcaa="git commit -a --amend -C HEAD"
+alias ggui="git gui"
+alias gcsam="git commit -S -am"
+alias gstd="git stash drop"
+alias gstl="git stash list"
+alias ght='cd "$(git rev-parse --show-toplevel)"'
+alias qt='~/Qt5.11.1/Tools/QtCreator/bin/qtcreator -noload Welcome'
+alias gc="git checkout"
+
+cpktw()
+{
+  build_svcs;fw $1;cpfw $LBB_VERSION $1;
+}
+
+# SIM
+cpstw()
+{
+  build_svcs;fw "$1";cpsw $LBB_VERSION  $1;
+}
+
+cpsrw()
+{
+  build_svcs;fw "$1";cpsr $LBB_VERSION  $1;
+}
+# Home
+cphtw()
+{
+  build_svcs;fw "$1";cphw $LBB_VERSION "$1";
+}
+cphrw()
+{
+  build_svcs;fwr "$1";cphr $LBB_VERSION "$1";
+}
+# Wifi 
+cpwtw()
+{
+  build_svcs;fw "$1";cpwi $LBB_VERSION "$1";
+}
+cpwrw()
+{
+  build_svcs;fwr "$1";cpwr $LBB_VERSION "$1";
+}
+
+cpusb()
+{
+build_svcs
+fw $1
+cd ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$LBB_VERSION
+open .
+
+# if [ "$1" != "bsp" ];then
+# echo "skipping s3 upload, has to be whole bsp"
+# return
+# fi
+
+if [ "$2" = "debug" ];then
+cd "$2"/ota/
+echo "uploading to s3 aravind test bucket"
+fw_upload_s3 $2 $LBB_VERSION
+fi
+
+if [ "$2" = "release" ];then
+cd "$2"/ota/
+echo "uploading to s3 aravind test bucket"
+fw_upload_s3 $2 $LBB_VERSION
+fi
+
+echo "*******************************"
+cat ~/.aws/credentials | sed "s/ //g"
+echo "*******************************"
+}
+
+sync_lbb_bin(){
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_lbb_bin_files_to_host.sh"
+}
+
+cpbin(){
+    if [ -z "$2" ];then
+        echo "ERROR: Bin file cannot be empty"
+        return
+    fi
+    if [ -z "$3" ];then
+        SERVICE_NAME="$2"
+    else
+        SERVICE_NAME="$3"
+    fi
+
+    ssh -t $1 -o "ServerAliveInterval 2" 'echo "Datla";exit'
+
+    build_svcs
+    sync_lbb_bin
+    svcs;cd build-svcs
+    
+    file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs -type f -executable -name "$2" -not -path "CMake*" -not -path "./deploy/*")
+    if [ -z $file ];then
+      echo "ERROR: cannot find file $2"
+      return
+    fi
+    if [ $SERVICE_NAME != 'no' ];then
+        echo "stopping service $SERVICE_NAME"
+        ssh -t $1 -o "ServerAliveInterval 2" "systemctl stop $SERVICE_NAME;exit"
+    fi
+    scp $file $1:/usr/bin
+    if [ $SERVICE_NAME != 'no' ];then
+        echo "starting service $SERVICE_NAME"
+        ssh -t $1 -o "ServerAliveInterval 2" "systemctl start $SERVICE_NAME;exit"
+    fi
+}
+
+cpsrc(){
+    if [ -z "$2" ];then
+        echo "ERROR: Bin file cannot be empty"
+        return
+    fi
+    if [ -z "$3" ];then
+        SERVICE_NAME="no"
+    else
+        SERVICE_NAME="$3"
+    fi
+
+    ssh -t $1 -o "ServerAliveInterval 2" 'echo "Datla";exit'
+    
+    svcs
+    
+    file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs -type f -name "$2" -not -path "CMake*" -not -path "./build-svcs/*" ! -path "*/deploy/*")
+    if [ -z $file ];then
+      echo "ERROR: cannot find file $2"
+      return
+    fi
+    if [ $SERVICE_NAME != 'no' ];then
+        echo "stopping service $SERVICE_NAME"
+        ssh -t $1 -o "ServerAliveInterval 2" "systemctl stop $SERVICE_NAME;exit"
+    fi
+    scp $file $1:/usr/bin/
+    if [ $SERVICE_NAME != 'no' ];then
+        echo "starting service $SERVICE_NAME"
+        ssh -t $1 -o "ServerAliveInterval 2" "systemctl start $SERVICE_NAME;exit"
+    fi
+}
+
+cpgps()
+{
+  build_svcs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktgpsd;exit'
+  file_path="ktdaqd/sensors/gnss/ktgnssd"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/gnss/ktgnssd $1:/usr/bin
+#  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/cell_init.sh $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktgpsd;exit'
+}
+
+cphwd()
+{
+  build_svcs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop kthwd;exit'
+  file_path="ktdaqd/nodes/kthw/kthwd"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/kthw/kthwd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start kthwd;exit'
+}
+
+cpetap()
+{
+  build_svcs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktetapd;exit'
+  file_path="ktdaqd/nodes/etap/ktetapd"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/etap/ktetapd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktetapd;exit'
+}
+
+cpbt()
+{
+  build_svcs
+  ssh -t $1 -o "ServerAliveInterval 2" 'sudo systemctl stop ktbt121d;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/bt121/ktbt121d $1:/usr/local/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'sudo systemctl start ktbt121d;exit'
+}
+
+cpsubs()
+{
+  build_svcs
+  file_path="ktdaqd/eventgen/test_apps/subsTest"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+
+  file_path="kthw/hw_test/CellFreqTest"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/test_apps/subsTest $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/kthw/hw_test/CellFreqTest $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/kthw/test_app/GPSApp $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/ktlog/ktlogd $1:/usr/bin
+}
+
+cpcell()
+{
+  build_svcs
+  ssh -t $1 -o "ServerAliveInterval 2" 'cell_init.sh stop;exit'
+  
+  file_path="ktdaqd/sensors/cell/ktcelld"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/cell/ktcelld $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/hw_scripts/*.s* $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/cell_init.sh $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'cell_init.sh start;exit'
+}
+cpstream()
+{
+  build_svcs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktstreamd;exit'
+  file_path="ktdaqd/eventgen/stream/ktstreamd"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/stream/ktstreamd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktstreamd;exit'
+}
+cprelay()
+{
+  build_svcs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktrelayd;systemctl stop kteldd;systemctl stop ktrebootd;exit'
+
+  file_path="ktrelayd/relay/ktrelayd"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+
+  file_path="ktdaqd/eventgen/eld/kteldd"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+
+  file_path="ktdaqd/eventgen/reboot/ktrebootd"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktrelayd/relay/ktrelayd $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/eld/kteldd $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/reboot/ktrebootd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktrelayd;systemctl start kteldd;systemctl start ktrebootd;exit'
+}
+
+cpiot()
+{
+  build_svcs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktiotd;exit'
+  file_path="ktrelayd/iot/ktiotd"
+  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/$file_path $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktiotd;exit'
+}
+
+lbb_get_journal()
+{
+    ssh -t $1 -o "ServerAliveInterval 2" 'cd /tmp;journalctl -b 0 -a > lbb_journal_$(lbb_info.sh | grep SERIAL_NUMBER | cut -d " " -f 2)_$(date +%s).log;exit'
+    scp $1:"/tmp/lbb_journal_*.log" ~/Downloads/lbb_logs/
+}
+
+#export GOPATH="$HOME/go"
+#export PATH=$PATH:$GOPATH/bin
+
+export CLICOLOR=1
+#LS_COLORS='rs=0:di=01;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:';
+export LS_COLORS='rs=0:di=01;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:';
+# LSCOLORS=$LS_COLORS
+# ='di=01:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43'
+export LSCOLORS=GxFxCxDxBxegedabagaced
+#Gxfxcxdxbxegedabagacad
+# export LS_COLORS
+alias ls="ls --color=auto"
+alias ll="ls -l --color=auto"
+alias grep='grep --color=auto'
+
+
+
+# alias ccl='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
+# alias cgl='cd $HOME/code/KeepTruckin$LBB_UTILS_CONTAINER_PATH/get;./get.sh'
+# alias cst='cd $HOME/code/KeepTruckin$LBB_UTILS_CONTAINER_PATH/setup;./setup_toolchain.sh'
+# # bp to build the protobufs
+
+# # Build svcs
+# alias ccs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./configure_svcs.sh"'
+# alias cbs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./build.sh"'
+# alias csc='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_svcs.sh"'
+
+# # Test svcs
+# alias cct='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./configure_tests.sh"'
+# alias cts='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh"'
+# alias ctc='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./clean_tests.sh"'
+
+# # Deploy svcs
+# alias cdl='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_all.sh"'
+# alias cds='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_svcs.sh"'
+
+# # cppcheck
+# alias cps='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./cppcheck.sh"'
+
+source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+#Snowflake Credentials
+# export SNOWFLAKE_URL='keeptruckin.snowflakecomputing.com'
+# export SNOWFLAKE_ACCOUNT='keeptruckin'
+# export SNOWFLAKE_USER='aravind.datla@gomotive.com'

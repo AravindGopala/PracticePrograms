@@ -1,0 +1,687 @@
+export OPENAI_API_KEY="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"
+#KT
+alias mo='cd ~/code/Keeptruckin/kt'
+alias embedded='cd ~/code/Keeptruckin/kt/src/embedded'
+alias sdk='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk'
+alias am335x='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/am335x'
+alias drivers='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/drivers'
+alias kernel='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/lbbkernel'
+alias svcs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs'
+alias tools='cd ~/code/Keeptruckin/kt/src/embedded/tools'
+alias libs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/libs'
+alias fs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/fs'
+alias uboot='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/u-boot'
+alias sysroot='cd ~/k2labs/sysroot'
+alias tests='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-tests'
+alias bld='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/tools/build'
+alias dockers='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/tools/docker'
+alias qa='cd ~/code/Keeptruckin/lbb_qa/python/scripts/simulator'
+alias py='cd ~/code/Keeptruckin/lib_keeptruckin_python/dist'
+alias lbb='cd ~/code/Keeptruckin/kt/src/embedded/lbb'
+alias stage='cd ~/code/Keeptruckin/kt/src/embedded/lbb/staging'
+
+alias ss="pushd .;sdk;source setup_env master;popd"
+alias gr='git reset --hard origin/develop'
+alias pullM='git checkout develop ; git pull'
+alias bd='sdk;./tools/docker/docker_run.sh build all'
+alias testlib='~/test_setup.sh'
+#alias bt='pushd; svcs;mkdir build-tests;cd build-tests;../configure;make -j12; popd'
+alias td='svcs;cd build-tests'
+alias run='make -j12 check'
+alias runall='pushd;svcs;cd build-tests;make -j12 check;popd'
+
+alias bd='sdk;source setup_env develop;./tools/docker/docker_run.sh build all'
+alias bs='sdk;source setup_env develop;./tools/docker/docker_run.sh build services'
+alias bpy='py;sudo pip uninstall keeptruckin-0.12.12-py2.py3-none-any.whl;cd ..;python setup.py bdist_wheel;cd dist;sudo pip install keeptruckin-0.12.12-py2.py3-none-any.whl'
+alias cpy='py;scp keeptruckin-0.0.32-py2.py3-none-any.whl lbbDUT:/var/tmp/'
+
+#alias dcsvcs='docker exec -it Datla bash -c "export DESTDIR=/home/kt/kt/src/embedded/lbb_sdk/svcs/deploy;source lbb/version.sh;cd svcs/build-svcs;make install -j8 -s;"'
+
+alias dcsvcs='docker exec -it Datla bash -c "cd /home/kt/kt/src/embedded/lbb_sdk/svcs/build-svcs;ninja -j 8 install;"'
+#alias disvcs='dcsvcs;docker exec -it Datla bash -c "cd /home/kt/kt/src/embedded/lbb_sdk/svcs/deploy;./create_tar.sh";pushd;svcs;cd deploy;popd'
+
+disvcs()
+{
+docker exec -it Datla bash -c 'cd /home/kt/kt/src/embedded/lbb_sdk/svcs/deploy;ls -I "lbbdev" -I "*.sh" | xargs rm -rf'
+dcsvcs
+docker exec -it Datla bash -c 'cd /home/kt/kt/src/embedded/lbb_sdk/svcs/deploy;./create_tar.sh 2'
+#docker exec -it Datla bash -c "cd /home/kt/kt/src/embedded/lbb_sdk/svcs/deploy;tar -c -I 'xz -2 -T0' --exclude=./svcs_rootfs.tar.xz --exclude=./ota --exclude=./create_tar.sh -f ./svcs_rootfs.tar.xz ./*"
+svcs
+#cd deploy
+#popd
+}
+
+bp()
+{
+# build the google protobufs
+GOOGLE_PROTO_LIST=$(find ${PROTOC_EXTERNS_PATH} -type f -name *.proto)
+
+for file in ${GOOGLE_PROTO_LIST[@]}; do
+    # only run protoc if the generated file is older than the .proto file
+    rm -f "${file%.*}.pb.c"
+    rm -f "${file%.*}.pb.h"
+    filepath=`dirname "$file"`
+    filename=`basename "$file"`
+    echo "Build ${filename}"
+    protoc --proto_path="${filepath}" --nanopb_out="${filepath}" "${filename}"
+done
+
+PROTO_PATH="${KTMR_PATH}/src"
+PROTO_EMBEDDED_PATH="proto/embedded"
+PROTO_EMBEDDED_LIST=$(cd ${PROTO_PATH} && find ${PROTO_EMBEDDED_PATH} -type f -name *.proto)
+PROTO_FIS_PATH="proto/platform/services/fileingestion"
+PROTO_FIS_LIST=$(cd ${PROTO_PATH} && find ${PROTO_FIS_PATH} -type f -name *.proto)
+PROTO_EMBEDDED_LIST=("${PROTO_EMBEDDED_LIST[@]}" ${PROTO_FIS_LIST})
+for file in ${PROTO_EMBEDDED_LIST[@]}; do
+    # only run protoc if the generated file is older than the .proto file
+        rm -f "${PROTO_PATH}/${file%.*}.pb.c"
+        rm -f "${PROTO_PATH}/${file%.*}.pb.h"
+        rm -f "${PROTO_PATH}/${file%.*}_pb2.py"
+        filepath=`dirname "$file"`
+        filename=`basename "$file"`
+        options_file="${file%.*}.options"
+        echo "Build ${file}"
+        protoc --proto_path="${PROTO_PATH}" --nanopb_out="-I${PROTO_PATH}:${PROTO_PATH}/" "${file}"
+        protoc --proto_path="${PROTO_PATH}" --python_out="${PROTO_PATH}/" "${file}"
+done
+
+}
+
+cps()
+{
+  scp $1 $2:/var/tmp/
+}
+cpvar()
+{
+  scp lbb_fw.ktz fwu_result $1:/motive/data/cache/update/
+}
+
+#alias bs='pushd .;bld;./services.sh config;./services.sh rebuild;popd'
+
+
+alias ts='sdk;source setup_env develop;./tools/docker/docker_run.sh test services'
+fw()
+{
+  disvcs
+  if [ "$1" = "bsp" ];then
+    docker exec -it Datla bash -c "set -a;source /home/kt/kt/src/embedded/vg/version.sh;source /home/kt/kt/src/embedded/lbb/version.sh;lbb/run/prepare_update.sh"
+  else
+    docker exec -it Datla bash -c "set -a;source /home/kt/kt/src/embedded/vg/version.sh;source /home/kt/kt/src/embedded/lbb/version.sh;lbb/run/prepare_update.sh -s"
+  fi
+}
+
+fwr()
+{
+  disvcs
+  if [ "$1" = "bsp" ];then
+    docker exec -it Datla bash -c "set -a;source /home/kt/kt/src/embedded/vg/version.sh;source /home/kt/kt/src/embedded/lbb/version.sh;lbb/run/prepare_update.sh"
+  else
+    docker exec -it Datla bash -c "set -a;source /home/kt/kt/src/embedded/vg/version.sh;source /home/kt/kt/src/embedded/lbb/version.sh;lbb/run/prepare_update.sh -s"
+  fi
+}
+
+cpfw()
+{
+scp ~/code/Keeptruckin/kt/src/embedded/ota/$1/REL/fwu_result lbbdev@lbbDUT:/var/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/ota/$1/REL/lbb_fw.ktz lbbdev@lbbDUT:/var/cache/update/
+ssh -t lbbdev@lbbDUT -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+tty()
+{
+ putty -load LBB$1
+}
+
+cpsw()
+{
+#scp ~/code/Keeptruckin/kt/src/embedded/ota/$1/REL/fwu_result lbbdev@lbbSIM:/var/cache/update/
+#scp ~/code/Keeptruckin/kt/src/embedded/ota/$1/REL/lbb_fw.ktz lbbdev@lbbSIM:/var/cache/update/
+#ssh -t lbbdev@lbbSIM -o "ServerAliveInterval 2" 'sudo reboot;exit'
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbSIM:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbSIM:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result root@lbbSIM:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/lbb_fw.ktz root@lbbSIM:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result
+fi
+}
+
+cpsr()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result root@lbbSIM:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/lbb_fw.ktz root@lbbSIM:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result root@lbbSIM:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/lbb_fw.ktz root@lbbSIM:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result
+fi
+}
+
+cphw()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result
+fi
+
+#ssh -t root@lbbHome -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+cphr()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result
+fi
+
+#ssh -t root@lbbHome -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+cpwi()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbWifi:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result root@lbbWifi:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result
+fi
+
+#ssh -t lbbdev@lbbWifi -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+cpwr()
+{
+if [ "$2" = "bsp" ];then
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result root@lbbWifi:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result
+else
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result root@lbbWifi:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result
+fi
+
+#ssh -t lbbdev@lbbWifi -o "ServerAliveInterval 2" 'sudo reboot;exit'
+}
+
+alias canup='sudo ip link set can0 up type can bitrate 250000;ifconfig'
+alias candown='sudo ip link set can0 down'
+
+copy_simlnk()
+{
+for f in $(find -L ${KTMR_PATH}/src/bazel-bin -xtype l)
+do
+    SYMLINK_PATH=$(readlink $f)
+    rm $f
+    cp -r $SYMLINK_PATH $f
+    # echo $f
+done
+}
+pdh()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/demo.py -c host.ini -i $1 -s $2 -e $3
+popd
+}
+
+plh()
+{
+pushd
+python ~/code/Keeptruckin/kt/src/embedded/scripts/vehicle/view_veh_data.py -i $1 -s $2 -e $3
+popd
+}
+plp()
+{
+pushd
+python ~/code/Keeptruckin/kt/src/embedded/scripts/vehicle/view_veh_data.py -i $1 -s $2 -e $3
+popd
+}
+
+pch()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/view_cell_data.py -c host.ini -i $1 -s $2 -e $3
+popd
+}
+pcp()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/view_cell_data.py -c preview.ini -i $1 -s $2 -e $3
+popd
+}
+
+pgh()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/view_gps_data.py -c host.ini -i $1 -s $2 -e $3
+popd
+}
+
+pgp()
+{
+pushd
+cd ~/code/Keeptruckin/lbb_qa
+python app/view_gps_data.py -c preview.ini -i $1 -s $2 -e $3
+popd
+}
+
+serial()
+{
+  putty -load LBB$1&	
+}
+
+#serial()
+#{
+ #socat - /dev/ttyUSB$1
+#}
+
+coverage()
+{
+    COVERAGE_DIR="lbb/coverage"
+    rm -rf "${LBB_HOME}/${COVERAGE_DIR}/*"
+    # Generate coverage data directory on success
+    mkdir -p "${COVERAGE_DIR}"
+
+    # Create coverage
+    lcov  --capture --directory "${LBB_SVCS_TEST_PATH}" --remove "${COVERAGE_DIR}"/svcs_test.info \
+        '/usr/include/*' '/usr/local/*' '*test*.c' '*/fakes/*' '*.h' '*/externs/*' \
+        -o "${COVERAGE_DIR}"/svcs_filtered.info
+
+
+    # Generate html output
+    CUR_SHA=$(git rev-parse --short HEAD)
+    CUR_BRCH=$(git rev-parse --abbrev-ref HEAD)
+    genhtml --ignore-errors source "${COVERAGE_DIR}"/svcs_filtered.info \
+        --title "${CUR_BRCH}, SHA ${CUR_SHA}" \
+        --output-directory="${COVERAGE_DIR}"/svcs_report
+}
+
+#alias dbs='sdk;source setup_env develop;./tools/docker/docker_run.sh bash; bs'
+alias masterlbbsdk='sdk;gr;pullM'
+alias masteram335x='am335x;gr;pullM'
+alias masterdrivers='drivers;gr;pullM'
+alias masterlbbkernel='lbbkernel;gr;pullM'
+alias mastersvcs='svcs;gr;pullM'
+alias mastertools='tools;gr;pullM'
+alias masterfs='fs;gr;pullM'
+alias masteruboot='uboot;gr;pullM'
+alias mastersysroot='sysroot;gr;pullM'
+alias masterlibs='libs;gr;pullM'
+alias tfw='bs;fw;cpfw $LBB_VERSION;vim ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/ota/64000/REL/fwu_result'
+alias masterall='tools;./git/pull_all.sh;./git/checkout_all.sh master;./git/status_all.sh'
+alias developall='tools;./git/pull_all.sh;./git/checkout_all.sh develop;./git/status_all.sh'
+alias stagingall='tools;./git/pull_all.sh;./git/checkout_all.sh staging;./git/status_all.sh'
+alias statusall='tools;./git/status_all.sh'
+
+alias enr='export ARM_TOOLCHAIN=${LBB_SDK}/am335x/toolchain;
+exportDESTDIR=${LBB_SVCS_PATH}/deploy;
+exportPATH=${ARM_TOOLCHAIN}/bin:${PATH};
+exportSYSROOT=${LBB_SDK}/${SYSROOT_DIR};
+exportTARGETMACH=arm-linux-gnueabihf'
+
+
+#bind
+#bind '"\e[A": history-search-backward'
+#bind '"\e[B": history-search-forward'
+#bind '"\e[C": forward-char'
+#bind '"\e[D": backward-char'
+#bind 'set completion-ignore-case on'
+#bind "set show-all-if-ambiguous on"
+# Huge history. Doesn't appear to slow things down, so why not?
+#HISTSIZE=500000
+#HISTFILESIZE=100000
+HISTSIZE=-1
+HISTFILESIZE=-1
+HISTTIMEFORMAT="[%F %T] "
+
+# Avoid duplicate entries
+HISTCONTROL="erasedups:ignoreboth"
+
+export PROMPT_DIRTRIM=2
+export GIT_RADAR_COLOR_BRANCH="\\033[1;36m"
+#export GIT_RADAR_FORMAT='[%{remote} "%{branch}" %{local}%{changes}]'
+export GIT_RADAR_FORMAT='["%{branch}" %{local}%{changes}]'
+
+# Prepend cd to directory names automatically
+#shopt -s autocd 2> /dev/null
+# Correct spelling errors during tab-completion
+#shopt -s dirspell 2> /dev/null
+
+# Correct spelling errors in arguments supplied to cd
+#shopt -s cdspell 2> /dev/null
+export PS1="$PS1\$(git-radar --bash --fetch):>"
+
+# Aliases
+alias gcl='git clone'
+alias ga='git add'
+alias grm='git rm'
+alias gap='git add -p'
+alias gall='git add -A'
+alias gf='git fetch --all --prune'
+alias gft='git fetch --all --prune --tags'
+alias gfv='git fetch --all --prune --verbose'
+alias gftv='git fetch --all --prune --tags --verbose'
+alias gus='git reset HEAD'
+alias gpristine='git reset --hard && git clean -dfx'
+alias gclean='git clean -fd'
+alias gm="git merge"
+alias gmv='git mv'
+alias g='git'
+alias get='git'
+alias gst='git status'
+alias gs='git status'
+alias gss='git status -s'
+alias gsu='git submodule update --init --recursive'
+alias gl='git pull'
+alias glum='git pull upstream master'
+alias gpr='git pull --rebase'
+alias gpp='git pull && git push'
+alias gup='git fetch && git rebase'
+alias gp='git push'
+alias gpo='git push origin'
+alias gpu='git push --set-upstream'
+alias gpuo='git push --set-upstream origin'
+alias gpom='git push origin master'
+alias gr='git remote'
+alias grv='git remote -v'
+alias gra='git remote add'
+alias gd='git diff'
+alias gdv='git diff -w "$@" | vim -R -'
+alias gca='git commit -v -a'
+alias gcm='git commit -v -m'
+alias gcam="git commit -v -am"
+alias gci='git commit --interactive'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbt='git branch --track'
+alias gbm='git branch -m'
+alias gbd='git branch -d'
+alias gbD='git branch -D'
+alias gcount='git shortlog -sn'
+alias gcp='git cherry-pick'
+alias gco='git checkout'
+alias gcom='git checkout master'
+alias gcb='git checkout -b'
+alias gcob='git checkout -b'
+alias gct='git checkout --track'
+alias gexport='git archive --format zip --output'
+alias gdel='git branch -D'
+alias gmu='git fetch origin -v; git fetch upstream -v; git merge upstream/master'
+alias gll='git log --graph --pretty=oneline --abbrev-commit'
+alias glg='git log --graph --full-history --all --color --pretty=format:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s"'
+alias gg="git log --graph --pretty=format:'%C(bold)%h%Creset%C(magenta)%d%Creset %s %C(yellow)<%an> %C(cyan)(%cr)%Creset' --abbrev-commit --date=relative"
+alias ggs="gg --stat"
+alias gsl="git shortlog -sn"
+alias gwc="git whatchanged"
+alias gt="git tag"
+alias gta="git tag -a"
+alias gtd="git tag -d"
+alias gtl="git tag -l"
+# From http://blogs.atlassian.com/2014/10/advanced-git-aliases/
+# Show commits since last pull
+alias gnew="git log HEAD@{1}..HEAD@{0}"
+# Add uncommitted and unstaged changes to the last commit
+alias gcaa="git commit -a --amend -C HEAD"
+alias ggui="git gui"
+alias gcsam="git commit -S -am"
+alias gstd="git stash drop"
+alias gstl="git stash list"
+alias ght='cd "$(git rev-parse --show-toplevel)"'
+alias qt='~/Qt5.11.1/Tools/QtCreator/bin/qtcreator -noload Welcome'
+alias gc="git checkout"
+alias rotate="xrandr --output DVI-I-1 --rotate left"
+alias normal="xrandr --output DVI-I-1 --rotate normal"
+alias qtcreator="~/Qt/Tools/QtCreator/bin/qtcreator"
+
+source ~/code/Keeptruckin/kt/src/embedded/lbb/version.sh
+source ~/code/Keeptruckin/kt/src/embedded/vg/version.sh
+KTMR_PATH="~/code/Keeptruckin/kt"
+EMBEDDED_PATH="${KTMR_PATH}/src/embedded"
+EXTERNS_PATH="${EMBEDDED_PATH}/externs"
+EXTERNS_NIX_STORE_PATH="${EXTERNS_PATH}/nix/store"
+PROTOC_PATH="$(cd /Users/aravind.datla/code/Keeptruckin/kt && nix-build external/nixpkgs/import.nix --no-out-link -A protobuf3_13)"
+PROTOC_EXTERNS_PATH="${EXTERNS_PATH}${PROTOC_PATH}"
+PROTOC_BIN_PATH="${PROTOC_PATH}/bin"
+PROTOC_SOURCE_PATH="${PROTOC_PATH}/include"
+
+NANOPB_PATH="$(cd /Users/aravind.datla/code/Keeptruckin/kt && nix-build external/nixpkgs/import.nix --no-out-link -A nanopb)"
+NANOPB_EXTERNS_PATH="${EXTERNS_PATH}${NANOPB_PATH}"
+NANOPB_BIN_PATH="${NANOPB_PATH}/bin"
+NANOPB_SOURCE_PATH="${NANOPB_PATH}/include"
+
+EXTERNS_NIX_STORE_PATH="~/code/Keeptruckin/kt/src/embedded/externs/nix/store"
+PATH_DOCKER="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/kt/kt/src/embedded/compiler/toolchain/bin:${NANOPB_BIN_PATH}:${PROTOC_BIN_PATH}:/home/kt/.local/bin/"
+
+
+#docker building blocks aliases
+alias dlibjan='docker exec -it Datla bash -c "cd lbb_sdk/libs/jansson;export CC="";export TARGETMACH="";autoreconf -if;./configure;export CC="";export TARGETMACH="";make -j8 -s;sudo make install;sudo ldconfig;make -s distclean;echo "Successful!""'
+alias dlibnan='docker exec -it Datla bash -c "cd lbb_sdk/libs/nanomsg;export CC="";export TARGETMACH="";autoreconf -if;./configure;make -j8 -s;sudo make install;sudo ldconfig;make -s distclean;echo "Successful!""'
+alias dlibcurl='docker exec -it Datla bash -c "cd lbb_sdk/libs/libcurl;export CC="";export TARGETMACH="";autoreconf -if;./configure --with-openssl;make -j8 -s;sudo make install;sudo ldconfig;make -s distclean;echo "Successful!""'
+alias dlibssl='docker exec -it Datla bash -c "cd lbb_sdk/libs/openssl;export CC="";export MACHINE="";export TARGETMACH="";autoreconf -if;./config shared;make -j8 -s;sudo make install_sw;sudo ldconfig;make -s distclean;echo "Successful!""'
+alias dlibs='dlibjan;dlibnan;dlibssl;dlibcurl'
+alias dsvcs='docker exec -it Datla bash -c "cd lbb_sdk/svcs;autoreconf -if;run/utils/utils.sh config"'
+alias docker_update='embedded;bp;docker stop Datla; docker rm Datla;embedded;DOCKER_BUILDKIT=1 docker build --rm --build-arg UID=$(id -u) --build-arg GID=$(id -g) --build-arg "PROTOC_BIN_PATH=${PROTOC_BIN_PATH}" \
+    # --build-arg "NANOPB_BIN_PATH=${NANOPB_BIN_PATH}" \
+    # --build-arg "PROTOC_SOURCE_PATH=${PROTOC_SOURCE_PATH}" \
+    # --build-arg "NANOPB_SOURCE_PATH=${NANOPB_SOURCE_PATH}" \
+    -t "lbb-sdk" -f tools/docker/lbb/Dockerfile tools;docker_start;install_ninja;dbc;rbs'
+#alias docker_update='embedded;docker stop Datla;docker rm Datla;embedded;docker_start;dlibs;install_ninja;dbc;rbs'
+alias docker_start='embedded;docker run -t -d --env PROTOC_BIN_PATH=${PROTOC_BIN_PATH} --env NANOPB_BIN_PATH=${NANOPB_BIN_PATH} --env PROTOC_SOURCE_PATH=${PROTOC_SOURCE_PATH} --env NANOPB_SOURCE_PATH=${NANOPB_SOURCE_PATH} --env PATH=${PATH_DOCKER} --env CC=/home/kt/kt/src/embedded/compiler/toolchain/bin/arm-linux-gnueabihf- --env LBB_VERSION=${LBB_VERSION} --env ZLIB_DIR=zlib --env CRYPTODEV_DIR=cryptodev --env OPENSSL_DIR=openssl --env LIBCURL_DIR=libcurl --env ARM_TOOLCHAIN=/home/kt/kt/src/embedded/compiler/toolchain --env TARGETMACH=arm-linux-gnueabihf --env KTMR_REPO_HASH=abcdefghijklmnop --env SYSROOT=/home/kt/kt/src/embedded/vg/sdk/arm-none-linux-gnueabihf/vg3x/arm-buildroot-linux-gnueabihf/sysroot --env MACHINE=arm-linux-gnueabihf --env NINJA_STATUS="[%p] " --privileged -v ~/code/Keeptruckin/kt:/home/kt/kt -v /dev:/dev -v ${EXTERNS_NIX_STORE_PATH}:/nix/store -h "$(hostname)" --name "Datla" lbb-sdk bash'
+alias ds='docker start Datla; docker exec -it Datla bash -c "source lbb/version.sh; source vg/version.sh"'
+#alias dconfig='docker exec -it Datla ./lbb_sdk/svcs/build-svcs/configure ../'
+#alias dball='docker exec -it Datla lbb_sdk/tools/docker/build/all_eld.sh'
+alias install_ninja='docker exec -it Datla bash -c "sudo apt-get install ninja-build"'
+
+
+# Useful alises
+#alias dbs='docker exec -it Datla bash -c "cd lbb_sdk;export DESTDIR=${LBB_SVCS_PATH}/deploy;cd svcs/build-svcs;make -j8 -s;"'
+alias dcomplier=''
+#alias dbs='docker exec -it Datla bash -c "unset CC;cd lbb_sdk;cd svcs/build-svcs;make -j8 -s;"'
+alias dbs='docker exec -it Datla bash -c "set -a;source lbb/version.sh;source vg/version.sh;unset CC;cd lbb_sdk;cd svcs/build-svcs;ninja -j 8;"'
+#-DCMAKE_BUILD_TYPE=Debug 
+alias dbc='docker exec -it Datla bash -c "set -a;source lbb/version.sh;source vg/version.sh;cmake -B /home/kt/kt/src/embedded/lbb_sdk/svcs/build-svcs -DCMAKE_TOOLCHAIN_FILE=/home/kt/kt/src/embedded/cmake_toolchains/buildroot_linux_toolchain.cmake \
+-DCMAKE_SYSROOT=/home/kt/kt/src/embedded/vg/sdk/arm-none-linux-gnueabihf/vg3x/arm-buildroot-linux-gnueabihf/sysroot \
+-S/home/kt/kt/src/embedded/lbb_sdk/svcs/ -G Ninja"'
+alias dbt='docker exec -it Datla bash -c "export CC=; export TEST=1;cmake -B /home/kt/kt/src/embedded/lbb_sdk/svcs/build-tests \
+-S/home/kt/kt/src/embedded/lbb_sdk/svcs/ -G Ninja;cd lbb_sdk/svcs/build-tests;ninja -j 8"'
+alias dcr='docker exec -it Datla bash -c "cd compiler;./setup_cc.sh"'
+alias dbd='sdk;rm -rf drivers/deploy; docker exec -it Datla bash -c "cd lbb_sdk;drivers/run/utils/utils.sh clean;drivers/run/utils/utils.sh;"'
+alias dbu='sdk;rm -rf u-boot/u-boot.img u-boot/.config; docker exec -it Datla bash -c "cd lbb_sdk;u-boot/run/utils/utils.sh clean;u-boot/run/build.sh;"'
+alias dbl='sdk;rm -rf libs/deploy; docker exec -it Datla bash -c "cd lbb_sdk;libs/run/utils/utils.sh all"'
+alias dbk='sdk;rm lbb_kernel/KERNEL/.config;rm -rf lbb_kernel/deploy;docker exec -it Datla bash -c "cd lbb_sdk;lbb_kernel/run/utils/utils.sh clean;lbb_kernel/run/utils/utils.sh;lbb_kernel/run/utils/utils.sh deb;"'
+alias dbf='docker exec -it Datla bash -c "fs/run/utils/utils.sh"'
+alias dds='docker exec -it Datla bash -c "tools/staging/run.sh"'
+alias ddd='docker exec -it Datla bash -c "tools/deploy/run.sh;tools/deploy/create_sd_img.sh"'
+alias ddc='docker exec -it Datla bash -c "cd lbb_sdk;sh svcs/run/generate.sh"'
+#alias dbt='docker exec -it Datla tools/docker/test/services.sh'
+#alias dbs='docker exec -it Datla bash -c "cd lbb_sdk;source setup_env master;tools/docker/build/services.sh"'
+alias dcpp='docker exec -it Datla lbb_sdk/svcs/run/cppcheck.sh;'
+alias dbclean='docker exec -it Datla make -j8 -C  lbb_sdk/svcs/build-svcs -s clean'
+alias dtclean='docker exec -it Datla make -j8 -C  lbb_sdk/svcs/build-tests -s clean'
+#alias bt='docker exec -it Datla bash -c "cd lbb_sdk;cd svcs;mkdir build-tests;unset CC;cd build-tests;../configure;make -j12;"'
+#alias bs='docker exec -it Datla bash -c "cd lbb_sdk;cd svcs;mkdir build-svcs;cd build-svcs;  unset CC;../configure --host=${TARGETMACH} --prefix=/usr/local CFLAGS="-Werror -Wall -Wextra --std=c11 -D_POSIX_C_SOURCE=200809L -funwind-tables -O2 --sysroot=${SYSROOT}" CXXFLAGS="--std=c++11 -D_POSIX_C_SOURCE=200809L --sysroot=${SYSROOT}";make -j12;"'
+
+# run build checklist
+alias dall='dbs;dts;dcpp'
+# Rebuild services
+#alias rbs='tests;docker exec -it Datla bash -c "cd lbb_sdk/svcs;./reset.sh";dsvcs;dbs'
+alias rbs='docker exec -it Datla bash -c "cd lbb_sdk/svcs/build-svcs;ninja clean;ninja rebuild_cache;ninja -j 8"'
+alias rbt='docker exec -it Datla bash -c "export CC=; export TEST=1;cd lbb_sdk/svcs/build-tests;ninja clean;ninja rebuild_cache";dts'
+# run kthw tests only
+#alias dth='tests;docker exec -it Datla make -j8 -C  lbb_sdk/svcs/build-tests/kthw/ -s check'
+alias dth='docker exec -it Datla bash -c "cd lbb_sdk/svcs/build-tests;ninja -j 8; cd kthw;ctest -j 8 -v --stop-on-failure --progress --output-on-failure --stop-on-failure"'
+# run ktdaq tests only
+#alias dtd='tests;docker exec -it Datla make -j8 -C  lbb_sdk/svcs/build-tests/ktdaqd/ -s check'
+alias dtd='docker exec -it Datla bash -c "cd lbb_sdk/svcs/build-tests;ninja -j 8; cd ktdaqd; ctest -j 8 -v --stop-on-failure --progress --output-on-failure --stop-on-failure"'
+# run ktcore tests only
+#alias dtc='tests;docker exec -it Datla make -j8 -C  lbb_sdk/svcs/build-tests/ktcore/ -s check'
+alias dtc='docker exec -it Datla bash -c "python3 "lbb_sdk/svcs/externs/simple_http_server/http-server.py" & cd lbb_sdk/svcs/build-tests;ninja -j 8;cd ktcore; ctest -j 8 -v --stop-on-failure --progress --output-on-failure --stop-on-failure"'
+# Run all tests
+#alias dts='tests;docker exec -it Datla make -j8 -C  lbb_sdk/svcs/build-tests -s check'
+alias dts='docker exec -it Datla bash -c "python3 "lbb_sdk/svcs/externs/simple_http_server/http-server.py" & export CC=; export TEST=1;cd lbb_sdk/svcs/build-tests;ninja -j 8 || exit 1; ctest -j 8 --stop-on-failure --progress --output-on-failure --timeout 10"'
+alias dtsr='docker exec -it Datla bash -c "export CC=; export TEST=1;cd lbb_sdk/svcs/build-tests;ninja -j 8; ctest -j 8 --stop-on-failure --progress --output-on-failure --schedule-random
+ "'
+ alias dtsrf='docker exec -it Datla bash -c "export CC=; export TEST=1;cd lbb_sdk/svcs/build-tests;ninja -j 8; ctest -j 8 --stop-on-failure --progress --output-on-failure --schedule-random --repeat-until-fail 10"'
+tr()
+{
+ docker exec -it Datla bash -c "export CC=; export TEST=1;cd lbb_sdk/svcs/build-tests;ninja -j 8; ctest -j 8 -R $1 --stop-on-failure --progress --output-on-failure"
+}
+alias dbash='docker exec -it Datla bash'
+# Build check lisw
+alias cfgLegato='source ~/legato/packages/legato.sdk.18.10.3.wp76xx-native-x86_64-201903041326/resources/configlegatoenv'
+
+
+cpktw()
+{
+  dbs;fw $1;cpfw $LBB_VERSION $1;
+}
+
+# SIM
+cpstw()
+{
+  dbs;fw "$1";cpsw $LBB_VERSION  $1;
+}
+
+cpsrw()
+{
+  dbs;fw "$1";cpsr $LBB_VERSION  $1;
+}
+# Home
+cphtw()
+{
+  dbs;fw "$1";cphw $LBB_VERSION "$1";
+}
+cphrw()
+{
+  dbs;fwr "$1";cphr $LBB_VERSION "$1";
+}
+# Wifi 
+cpwtw()
+{
+  dbs;fw "$1";cpwi $LBB_VERSION "$1";
+}
+cpwrw()
+{
+  dbs;fwr "$1";cpwr $LBB_VERSION "$1";
+}
+cpusb()
+{
+ dbs;fw $1;cd ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$LBB_VERSION; nautilus .;
+}
+
+cpgps()
+{
+  dbs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktgpsd;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/gnss/ktgnssd $1:/usr/bin
+#  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/cell_init.sh $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktgpsd;exit'
+}
+
+cphwd()
+{
+  dbs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop kthwd;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/kthw/kthwd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start kthwd;exit'
+}
+
+cpetap()
+{
+  dbs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktetapd;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/etap/ktetapd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktetapd;exit'
+}
+
+cpbt()
+{
+  dbs
+  ssh -t $1 -o "ServerAliveInterval 2" 'sudo systemctl stop ktbt121d;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/bt121/ktbt121d $1:/usr/local/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'sudo systemctl start ktbt121d;exit'
+}
+
+cpsubs()
+{
+  dbs
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/test_apps/subsTest $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/kthw/hw_test/CellFreqTest $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/kthw/test_app/GPSApp $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/ktlog/ktlogd $1:/usr/bin
+}
+
+cpcell()
+{
+  dbs
+  ssh -t $1 -o "ServerAliveInterval 2" 'cell_init.sh stop;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/cell/ktcelld $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/hw_scripts/*.s* $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/cell_init.sh $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'cell_init.sh start;exit'
+}
+cpstream()
+{
+  dbs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktstreamd;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/stream/ktstreamd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktstreamd;exit'
+}
+cprelay()
+{
+  dbs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktrelayd;systemctl stop kteldd;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktrelayd/relay/ktrelayd $1:/usr/bin
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/eld/kteldd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktrelayd;systemctl start kteldd;exit'
+}
+cpiot()
+{
+  dbs
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktiotd;exit'
+  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktrelayd/iot/ktiotd $1:/usr/bin
+  ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktiotd;exit'
+}
+
+export GOPATH="$HOME/go"
+export PATH=$PATH:$GOPATH/bin
+
+LS_COLORS='rs=0:di=01;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:';
+export LS_COLORS
+
+export LS_COLORS
+
+export SNOWFLAKE_URL='keeptruckin.snowflakecomputing.com'
+export SNOWFLAKE_ACCOUNT='keeptruckin'
+export SNOWFLAKE_USER='ADATLA'
+
+gpt()
+{
+curl https://api.openai.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+     "model": "gpt-3.5-turbo",
+     "messages": [{"role": "user", "content": "$1"}]
+   }'
+}
