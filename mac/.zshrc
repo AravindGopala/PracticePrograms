@@ -55,4 +55,5 @@ if [[ -r "${XDG_CONFIG_HOME:-${HOME}/.config}/ktmr/load.sh" ]]; then
   source "${XDG_CONFIG_HOME:-${HOME}/.config}/ktmr/load.sh"
 fi
 # END MANAGED BY KTMR/ktmr-installer/roles/ktmr
-export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
+# export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"

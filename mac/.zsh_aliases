@@ -43,9 +43,9 @@ can_ack(){
     ip link set can0 down; ip link set can0 up type can bitrate 500000 listen-only off
     ip link set can1 down; ip link set can1 up type can bitrate 500000 listen-only off
 }
-alias pyenv='cd /Users/aravind.datla/Documents/KT/Parse_Raw_logs; source .venv/bin/activate'
+alias pyenv='cd $HOME/Documents/KT/Parse_Raw_logs; source .venv/bin/activate'
 
-alias bpy='pyenv;py;cd dist;pip3 uninstall $(ls -1);py;python3 setup.py bdist_wheel;cd dist;pip3 install $(ls -1)'
+alias bpy='pyenv;py;cd dist;pip3 uninstall $(ls -1);rm -rf $(ls -1);py;python3 setup.py bdist_wheel;cd dist;pip3 install $(ls -1)'
 
 export_lbb_version_info(){
     source ~/code/Keeptruckin/kt/src/embedded/lbb/version.sh
@@ -55,85 +55,94 @@ export_lbb_version_info(){
 sim_json() {
 cd ~/code/Keeptruckin/lbb_qa/
 # python/scripts/simulator/Simulation_Input_Configuration/json_profiles/eqa/current_consumption/low_power_current_consumption.json
-python3 python/scripts/simulator/Simulation_Input_Configuration/Test_JSON_Input.py --station_config /Users/aravind.datla/code/KeepTruckin/test_bench/station_config.ini -j "$1"
+python3 python/scripts/simulator/Simulation_Input_Configuration/Test_JSON_Input.py --station_config $HOME/code/KeepTruckin/test_bench/station_config.ini -j "$1"
 }
+
 source ~/code/Keeptruckin/kt/src/embedded/lbb/version.sh
 source ~/code/Keeptruckin/kt/src/embedded/vg/version.sh
-KTMR_PATH="/Users/aravind.datla/code/Keeptruckin/kt"
+KTMR_PATH="$HOME/code/Keeptruckin/kt"
 EMBEDDED_PATH="${KTMR_PATH}/src/embedded"
 EXTERNS_PATH="${EMBEDDED_PATH}/externs"
 EXTERNS_NIX_STORE_PATH="${EXTERNS_PATH}/nix/store"
-PROTOC_PATH="$(nix-build /Users/aravind.datla/code/Keeptruckin/kt/external/nixpkgs/import.nix --no-out-link -A protobuf3_13)"
+PROTOC_PATH="$(nix-build $HOME/code/Keeptruckin/kt/external/nixpkgs/import.nix --no-out-link -A protobuf3_13)"
 PROTOC_EXTERNS_PATH="${EXTERNS_PATH}${PROTOC_PATH}"
 PROTOC_BIN_PATH="${PROTOC_PATH}/bin"
 PROTOC_SOURCE_PATH="${PROTOC_PATH}/include"
 
-NANOPB_PATH="$(nix-build /Users/aravind.datla/code/Keeptruckin/kt/external/nixpkgs/import.nix --no-out-link -A nanopb)"
+NANOPB_PATH="$(nix-build $HOME/code/Keeptruckin/kt/external/nixpkgs/import.nix --no-out-link -A nanopb)"
 NANOPB_EXTERNS_PATH="${EXTERNS_PATH}${NANOPB_PATH}"
 NANOPB_BIN_PATH="${NANOPB_PATH}/bin"
 NANOPB_SOURCE_PATH="${NANOPB_PATH}/include"
 
-bp()
-{
-# build the google 
-typeset -a GOOGLE_PROTO_LIST
-GOOGLE_PROTO_LIST=$(find ${EXTERNS_PATH} -type f -name '*.proto')
-
-for file in $(find ${EXTERNS_PATH} -type f -name '*.proto'); do
-    # only run protoc if the generated file is older than the .proto file
-    rm -f "${file%.*}.pb.c"
-    rm -f "${file%.*}.pb.h"
-    filepath=`dirname "$file"`
-    filename=`basename "$file"`
-    echo "Build ${filename}"
-    protoc --proto_path="${filepath}" --nanopb_out="${filepath}" "${filename}"
-done
-
-PROTO_PATH="${KTMR_PATH}/src"
-PROTO_EMBEDDED_PATH="proto/embedded"
-PROTO_EMBEDDED_LIST=$(cd ${PROTO_PATH} && find ${PROTO_EMBEDDED_PATH} -type f -name '*.proto')
-PROTO_FIS_PATH="proto/platform/services/fileingestion"
-for file in $(cd ${PROTO_PATH} && find ${PROTO_FIS_PATH} -type f -name '*.proto'); do
-    # only run protoc if the generated file is older than the .proto file
-        rm -f "${PROTO_PATH}/${file%.*}.pb.c"
-        rm -f "${PROTO_PATH}/${file%.*}.pb.h"
-        rm -f "${PROTO_PATH}/${file%.*}_pb2.py"
-        filepath=`dirname "$file"`
-        filename=`basename "$file"`
-        options_file="${file%.*}.options"
-        echo "Build ${file}"
-        protoc --proto_path="${PROTO_PATH}" --nanopb_out="-I${PROTO_PATH}:${PROTO_PATH}/" "${file}"
-        protoc --proto_path="${PROTO_PATH}" --python_out="${PROTO_PATH}/" "${file}"
-done
-
-for file in $(cd ${PROTO_PATH} && find ${PROTO_EMBEDDED_PATH} -type f -name '*.proto'); do
-    # only run protoc if the generated file is older than the .proto file
-        rm -f "${PROTO_PATH}/${file%.*}.pb.c"
-        rm -f "${PROTO_PATH}/${file%.*}.pb.h"
-        rm -f "${PROTO_PATH}/${file%.*}_pb2.py"
-        filepath=`dirname "$file"`
-        filename=`basename "$file"`
-        options_file="${file%.*}.options"
-        echo "Build ${file}"
-        protoc --proto_path="${PROTO_PATH}" --nanopb_out="-I${PROTO_PATH}:${PROTO_PATH}/" "${file}"
-        protoc --proto_path="${PROTO_PATH}" --python_out="${PROTO_PATH}/" "${file}"
-done
-
+bp(){
+    pushd $HOME/code/KeepTruckin/kt/src > /dev/null
+    bash $HOME/Documents/aravind/experimental/lbb/build/build_proto.sh
+    popd > /dev/null
 }
+# bp()
+# {
+# # build the google 
+# typeset -a GOOGLE_PROTO_LIST
+# GOOGLE_PROTO_LIST=$(find ${EXTERNS_PATH} -type f -name '*.proto')
+
+# for file in $(find ${EXTERNS_PATH} -type f -name '*.proto'); do
+#     # only run protoc if the generated file is older than the .proto file
+#     rm -f "${file%.*}.pb.c"
+#     rm -f "${file%.*}.pb.h"
+#     filepath=`dirname "$file"`
+#     filename=`basename "$file"`
+#     echo "Build ${filename}"
+#     protoc --proto_path="${filepath}" --nanopb_out="${filepath}" "${filename}"
+# done
+
+# PROTO_PATH="${KTMR_PATH}/src"
+# PROTO_EMBEDDED_PATH="proto/embedded"
+# PROTO_EMBEDDED_LIST=$(cd ${PROTO_PATH} && find ${PROTO_EMBEDDED_PATH} -type f -name '*.proto')
+# PROTO_FIS_PATH="proto/platform/services/fileingestion"
+# for file in $(cd ${PROTO_PATH} && find ${PROTO_FIS_PATH} -type f -name '*.proto'); do
+#     # only run protoc if the generated file is older than the .proto file
+#         rm -f "${PROTO_PATH}/${file%.*}.pb.c"
+#         rm -f "${PROTO_PATH}/${file%.*}.pb.h"
+#         rm -f "${PROTO_PATH}/${file%.*}_pb2.py"
+#         filepath=`dirname "$file"`
+#         filename=`basename "$file"`
+#         options_file="${file%.*}.options"
+#         echo "Build ${file}"
+#         protoc --proto_path="${PROTO_PATH}" --nanopb_out="-I${PROTO_PATH}:${PROTO_PATH}/" "${file}"
+#         protoc --proto_path="${PROTO_PATH}" --python_out="${PROTO_PATH}/" "${file}"
+# done
+
+# for file in $(cd ${PROTO_PATH} && find ${PROTO_EMBEDDED_PATH} -type f -name '*.proto'); do
+#     # only run protoc if the generated file is older than the .proto file
+#         rm -f "${PROTO_PATH}/${file%.*}.pb.c"
+#         rm -f "${PROTO_PATH}/${file%.*}.pb.h"
+#         rm -f "${PROTO_PATH}/${file%.*}_pb2.py"
+#         filepath=`dirname "$file"`
+#         filename=`basename "$file"`
+#         options_file="${file%.*}.options"
+#         echo "Build ${file}"
+#         protoc --proto_path="${PROTO_PATH}" --nanopb_out="-I${PROTO_PATH}:${PROTO_PATH}/" "${file}"
+#         protoc --proto_path="${PROTO_PATH}" --python_out="${PROTO_PATH}/" "${file}"
+# done
+
+# }
 
 # LBB_UTILS_CONTAINER_PATH="/kt/src/experimental/aravind/lbb"
 LBB_UTILS_CONTAINER_PATH="/lbb_utils"
-LBB_UTILS_HOST_PATH="/Users/aravind.datla/code/KeepTruckin/kt/src/experimental/aravind/lbb" # Hack for now, on fixing uncomment the below line
-# LBB_UTILS_HOST_PATH="/Users/aravind.datla/Documents/aravind/experimental/lbb"
+LBB_UTILS_HOST_PATH="$HOME/code/KeepTruckin/kt/src/experimental/aravind/lbb" # Hack for now, on fixing uncomment the below line
+NEW_LBB_UTILS_HOST_PATH="$HOME/Documents/aravind/experimental/lbb"
 
 ############# MAC aliases ##################
 alias ubuntu_container_stop='colima ssh -- nerdctl stop ubuntu-focal'
 alias ubuntu_container_start='colima ssh -- nerdctl start ubuntu-focal'
 start_lbb()
 {
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblock /usr/libexec/bootpd
-    sudo ifconfig en7 down
-    sudo ifconfig en7 up
+    if [ -n "$1" ];then
+        sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /usr/libexec/bootpd
+        sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblock /usr/libexec/bootpd
+        sudo ifconfig en7 down
+        sudo ifconfig en7 up
+    fi
     colima start
     ubuntu_container_start
 }
@@ -159,16 +168,36 @@ container_create()
 {
 colima ssh /bin/bash << EOF
 rm -rf /tmp/ubuntu_focal
-cd /Users/aravind.datla/Documents/aravind/experimental/lbb/setup/container
+cd $HOME/Documents/aravind/experimental/lbb/setup/container
 cp -vr ubuntu_focal /tmp/
 ./setup_container.sh
 EOF
 container_install_essentials
 }
 
+scan_my_wifi(){
+    rustscan -a 192.168.0.0/24 -p 22 -g
+}
+
 alias clean_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
-alias toolchain_lbb='cd "$LBB_UTILS_HOST_PATH"/setup;./setup_toolchain.sh'
-alias get_lbb='cd "$LBB_UTILS_HOST_PATH"/get;./get.sh;toolchain_lbb'
+alias toolchain_lbb='cd "$NEW_LBB_UTILS_HOST_PATH"/setup;./setup_toolchain.sh'
+
+get_lbb(){
+pushd "$LBB_UTILS_HOST_PATH"/get
+./get.sh || {echo "-------- Correct errors! --------" && return 1;};
+toolchain_lbb
+popd
+}
+
+get_lbb_sd(){
+pushd "$LBB_UTILS_HOST_PATH"/get
+./get-sd.sh  || {echo "-------- Correct errors! --------" && return 1;};
+popd
+}
+
+sync_lbb_artifacts(){
+    aws s3 sync s3://keep-truckin-iot/embedded-firmwares/"$1"/ ~/Downloads/
+}
 
 # bp to build the protobufs
 
@@ -186,20 +215,35 @@ alias clean_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_U
 # Test svcs
 alias configure_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./configure_tests.sh"'
 alias test_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh"'
+alias test_svcs_random='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh vr"'
+
 alias clean_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./clean_tests.sh"'
+alias shellcheck_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./pipeline.sh"'
+
 
 # Deploy svcs
 alias ota_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_all.sh"'
+alias ota_bsp='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_bsp.sh"'
 alias ota_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_svcs.sh"'
 alias ota_switch='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_switch.sh"'
+alias ota_sd='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_sd.sh"'
+
 
 # cppcheck
 alias cppcheck_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./cppcheck.sh"'
 
+
 alias dbs='build_svcs'
 alias dbc='clean_svcs'
-alias dts='test_svcs'
+dall()
+{
+ test_svcs || return 1
+ shellcheck_lbb || return 1
+ cppcheck_svcs
+}
+
 alias dtc='clean_tests'
+alias dts='test_svcs'
 alias dtb='configure_tests'
 alias dcpp='cppcheck_svcs'
 alias rbs='dbc;dbs'
@@ -224,6 +268,8 @@ pr_lbb(){
 
 alias ks='pkill SCREEN'
 alias slbb='cd ~/Documents;screen -D -R -A -L /dev/tty.usbserial-AU05KPXF 115200'
+alias slbb1='cd ~/Documents;screen -D -R -A -L /dev/cu.usbserial-AU04DFW9 115200'
+
 #alias ks='pkill SCREEN'
 
 fw_upload_s3 (){
@@ -254,8 +300,10 @@ cpvar()
 alias ts='sdk;source setup_env develop;./tools/docker/docker_run.sh test services'
 fw()
 {
-  if [ "$1" = "bsp" ];then
+  if [ "$1" = "all" ];then
     ota_lbb
+  elif [ "$1" = "bsp" ];then
+    ota_bsp
   else
     ota_svcs
   fi
@@ -263,8 +311,10 @@ fw()
 
 fwr()
 {
-  if [ "$1" = "bsp" ];then
+  if [ "$1" = "all" ];then
     ota_lbb
+  elif [ "$1" = "bsp" ];then
+    ota_bsp
   else
     ota_svcs
   fi
@@ -319,9 +369,9 @@ scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@
 scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
 cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result
 else
-scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result root@lbbHome:/motive/data/cache/update/
-scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
-cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbHome:/motive/data/cache/update/
+scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbHome:/motive/data/cache/update/
+cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result
 fi
 
 #ssh -t root@lbbHome -o "ServerAliveInterval 2" 'sudo reboot;exit'
@@ -343,16 +393,9 @@ fi
 
 cpwi()
 {
-if [ "$2" = "bsp" ];then
 scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/fwu_result root@lbbWifi:/motive/data/cache/update/
 scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/ota/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
 cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/ota/fwu_result
-else
-scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/fwu_result root@lbbWifi:/motive/data/cache/update/
-scp ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/debug/svcs/lbb_fw.ktz root@lbbWifi:/motive/data/cache/update/
-cat ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$1/release/svcs/fwu_result
-fi
-
 #ssh -t lbbdev@lbbWifi -o "ServerAliveInterval 2" 'sudo reboot;exit'
 }
 
@@ -435,6 +478,32 @@ cd ~/code/Keeptruckin/lbb_qa
 python app/view_gps_data.py -c preview.ini -i $1 -s $2 -e $3
 popd
 }
+
+vehsim_start(){
+    ssh -t root@$1 -o "systemctl start vehsim"
+}
+
+engine_start(){
+    echo "engine@1000 rpm"
+    ssh -t root@$1 -o "ServerAliveInterval 2" "sqlite3 -line /motive/data/cache/vehicle_sim.sqlite 'INSERT INTO vehicle_param values (1000, 0, 13.2, 0.8);'"
+}
+
+engine_stop(){
+    echo "engine stopped"
+    ssh -t root@$1 -o "ServerAliveInterval 2" "sqlite3 -line /motive/data/cache/vehicle_sim.sqlite 'INSERT INTO vehicle_param values (0, 0, 12.2, 0.8);'"
+}
+
+
+vehicle_start(){
+    echo "Vehicle started moving @10 kmph"
+    ssh -t root@$1 -o "ServerAliveInterval 2" "sqlite3 -line /motive/data/cache/vehicle_sim.sqlite 'INSERT INTO vehicle_param values (1000, 10, 13.2, 0.8);'"
+}
+
+vehicle_stop(){
+    echo "Vehicle stopped moving"
+    ssh -t root@$1 -o "ServerAliveInterval 2" "sqlite3 -line /motive/data/cache/vehicle_sim.sqlite 'INSERT INTO vehicle_param values (1000, 0, 13.2, 0.8);'"
+}
+
 
 serial()
 {
@@ -638,10 +707,10 @@ fw $1
 cd ~/code/Keeptruckin/kt/src/embedded/lbb/staging/$LBB_VERSION
 open .
 
-if [ "$1" != "bsp" ];then
-echo "skipping s3 upload, has to be whole bsp"
-return
-fi
+# if [ "$1" != "bsp" ];then
+# echo "skipping s3 upload, has to be whole bsp"
+# return
+# fi
 
 if [ "$2" = "debug" ];then
 cd "$2"/ota/
@@ -654,8 +723,9 @@ cd "$2"/ota/
 echo "uploading to s3 aravind test bucket"
 fw_upload_s3 $2 $LBB_VERSION
 fi
+
 echo "*******************************"
-cat ~/.aws/credentials
+cat ~/.aws/credentials | sed "s/ //g"
 echo "*******************************"
 }
 
@@ -854,14 +924,11 @@ alias ls="ls --color=auto"
 alias ll="ls -l --color=auto"
 alias grep='grep --color=auto'
 
-export SNOWFLAKE_URL='keeptruckin.snowflakecomputing.com'
-export SNOWFLAKE_ACCOUNT='keeptruckin'
-export SNOWFLAKE_USER='ADATLA'
 
 
 # alias ccl='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
-# alias cgl='cd /Users/aravind.datla/code/KeepTruckin$LBB_UTILS_CONTAINER_PATH/get;./get.sh'
-# alias cst='cd /Users/aravind.datla/code/KeepTruckin$LBB_UTILS_CONTAINER_PATH/setup;./setup_toolchain.sh'
+# alias cgl='cd $HOME/code/KeepTruckin$LBB_UTILS_CONTAINER_PATH/get;./get.sh'
+# alias cst='cd $HOME/code/KeepTruckin$LBB_UTILS_CONTAINER_PATH/setup;./setup_toolchain.sh'
 # # bp to build the protobufs
 
 # # Build svcs
@@ -883,7 +950,7 @@ export SNOWFLAKE_USER='ADATLA'
 
 source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-# Snowflake Credentials
+#Snowflake Credentials
 # export SNOWFLAKE_URL='keeptruckin.snowflakecomputing.com'
 # export SNOWFLAKE_ACCOUNT='keeptruckin'
 # export SNOWFLAKE_USER='aravind.datla@gomotive.com'
