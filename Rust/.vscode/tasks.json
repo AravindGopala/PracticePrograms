@@ -1,83 +1,82 @@
 {
     "version": "2.0.0",
     "tasks": [
-      {
-        "label": "Cargo_build",
-        // "label": "bash",
-        "type": "shell",
-        "command": "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up} && cargo build -q",
-        "promptOnClose": false,
-        // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
-        // "cwd":"${workspaceFolder}",
-        // "group": {
-        //   "kind": "build",
-        //   "isDefault": false
-        // },
-        "presentation": {
-            "echo": false,
-            "reveal": "silent",
-            "focus": false,
-            "panel": "shared",
-            // "reveal": "always",
-            // "clear": false,
-            "showReuseMessage": false,
-            "close": true,
+        {
+            "label": "Cargo_build",
+            // "label": "bash",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up} && cargo build -q",
+            "promptOnClose": false,
+            // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
+            // "cwd":"${workspaceFolder}",
+            // "group": {
+            //   "kind": "build",
+            //   "isDefault": false
+            // },
+            "presentation": {
+                "echo": false,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                // "reveal": "always",
+                // "clear": false,
+                "showReuseMessage": false,
+                "close": true,
+            },
+            "problemMatcher": []
         },
-        "problemMatcher": []
-      },
-
-      {
-        "label": "Cargo_Run",
-        // "label": "bash",
-        "type": "shell",
-        "command": [ "date;",
-                     "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}",
-                     "&& {cargo run -q || {echo \"--------------------------------------------------------\";exit 0};}",
-                     "&& {echo \"------------------------------------------------------------------\"}" ],
-        "promptOnClose": false,
-        // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
-        // "cwd":"${workspaceFolder}",
-        "group": {
-          "kind": "build",
-          "isDefault": true
+        {
+            "label": "Cargo_Run",
+            // "label": "bash",
+            "type": "shell",
+            "command": [
+                "{clear;echo \"-------------------$(date)-------------------\"};",
+                "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}",
+                "&& {cargo run -q || {echo \"--------------------------------------------------------\";exit 0};}",
+                "&& {echo \"------------------------------------------------------------------\"}"
+            ],
+            "promptOnClose": false,
+            // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
+            // "cwd":"${workspaceFolder}",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                // "panel": "dedicated",
+                "clear": false,
+                "showReuseMessage": false,
+                "close": false,
+            },
+            "problemMatcher": []
         },
-        "presentation": {
-            "echo": false,
-            "reveal": "always",
-            "focus": true,
-            // "panel": "dedicated",
-            "clear": false,
-            "showReuseMessage": false,
-            "close": false,
-        },
-        "problemMatcher": []
-      },
     ]
 }
-
-
 // Prompt on tasks build
-    //    {
-    //     "version": "2.0.0",
-    //     "tasks": [
-    //       {
-    //         "label": "cargo build",
-    //         "type": "shell",
-    //         "command": "cargo build",
-    //         "group": {
-    //           "kind": "build",
-    //           "isDefault": true
-    //         },
-    //         "problemMatcher": []
-    //       },
-    //       {
-    //         "label": "test",
-    //         "type": "shell",
-    //         "command": "cargo test",
-    //         "group": {
-    //           "kind": "test",
-    //           "isDefault": true
-    //         }
-    //       }
-    //     ]
-    //   }
+//    {
+//     "version": "2.0.0",
+//     "tasks": [
+//       {
+//         "label": "cargo build",
+//         "type": "shell",
+//         "command": "cargo build",
+//         "group": {
+//           "kind": "build",
+//           "isDefault": true
+//         },
+//         "problemMatcher": []
+//       },
+//       {
+//         "label": "test",
+//         "type": "shell",
+//         "command": "cargo test",
+//         "group": {
+//           "kind": "test",
+//           "isDefault": true
+//         }
+//       }
+//     ]
+//   }

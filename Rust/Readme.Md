@@ -10,7 +10,9 @@ rust-analyzer for the play and debug buttons
     cargo clippy can be used to debug in rust
 
 ## How to build?
+    ctrl+B
 
+## How to debug?
     F5
 
 ### tasks.json
