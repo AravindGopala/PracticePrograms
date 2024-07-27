@@ -12,18 +12,22 @@ setopt HIST_SAVE_NO_DUPS
 setopt share_history
 export HISTFILESIZE=1000000000
 export HISTSIZE=1000000000
+export HISTIGNORE="ls:ll:lla:lal:h:cl:clear:cd:pwd"
 autoload -Uz compinit && compinit
 
 alias subl='open -a "Sublime Text"'
+alias zed="open -a /Applications/Zed.app -n"
 
 #KT
 alias mo='cd ~/code/Keeptruckin/kt'
+alias src='cd ~/code/Keeptruckin/kt/src'
 alias em='cd ~/code/Keeptruckin/kt/src/embedded'
 alias sdk='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk'
 alias am335x='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/am335x'
 alias drivers='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/drivers'
 alias kernel='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/lbbkernel'
 alias svcs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs'
+alias externs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/externs'
 alias tools='cd ~/code/Keeptruckin/kt/src/embedded/tools'
 alias libs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/libs'
 alias fs='cd ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/fs'
@@ -86,7 +90,7 @@ bp(){
 }
 # bp()
 # {
-# # build the google 
+# # build the google
 # typeset -a GOOGLE_PROTO_LIST
 # GOOGLE_PROTO_LIST=$(find ${EXTERNS_PATH} -type f -name '*.proto')
 
@@ -138,8 +142,9 @@ LBB_UTILS_HOST_PATH="$HOME/code/KeepTruckin/kt/src/experimental/aravind/lbb" # H
 NEW_LBB_UTILS_HOST_PATH="$HOME/Documents/aravind/experimental/lbb"
 
 ############# MAC aliases ##################
-alias ubuntu_container_stop='colima ssh -- nerdctl stop ubuntu-focal'
-alias ubuntu_container_start='colima ssh -- nerdctl start ubuntu-focal'
+alias ubuntu_container_stop='docker stop ubuntu-focal'
+alias ubuntu_container_start='docker start ubuntu-focal'
+alias bash_lbb='docker exec -it ubuntu-focal bash'
 
 start_lbb()
 {
@@ -149,20 +154,21 @@ start_lbb()
         sudo ifconfig en7 down
         sudo ifconfig en7 up
     fi
-    colima start
+    limactl start lbb
+    docker context use lima-lbb
     ubuntu_container_start
 }
 
 stop_lbb(){
     ubuntu_container_stop
-    colima stop
+    limactl stop lbb
 }
 
+alias container_install_essentials='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/setup/;./setup_lbb_essentials.sh"'
 
-alias container_install_essentials='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/setup/;./setup_lbb_essentials.sh"'
+alias ubuntu_container_rm='docker rm ubuntu-focal'
+alias ubuntu_image_rm='docker image rm ubuntu-focal'
 
-alias ubuntu_container_rm='colima ssh -- nerdctl rm ubuntu-focal'
-alias ubuntu_image_rm='colima ssh -- nerdctl image rm ubuntu-focal'
 
 
 
@@ -174,10 +180,9 @@ container_remove(){
 
 container_create()
 {
-colima ssh /bin/bash << EOF
+limactl shell lbb /bin/bash << EOF
 rm -rf /tmp/ubuntu_focal
 cd $HOME/Documents/aravind/experimental/lbb/setup/container
-cp -vr ubuntu_focal /tmp/
 ./setup_container.sh
 EOF
 container_install_essentials
@@ -187,7 +192,7 @@ scan_my_wifi(){
     rustscan -a 192.168.0.0/24 -p 22 -g
 }
 
-alias clean_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
+alias clean_lbb='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_lbb.sh"'
 alias toolchain_lbb='cd "$NEW_LBB_UTILS_HOST_PATH"/setup;./setup_toolchain.sh'
 
 get_lbb(){
@@ -210,20 +215,22 @@ sync_lbb_artifacts(){
 # bp to build the protobufs
 
 # Build svcs
-alias configure_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./configure_svcs.sh"'
+alias configure_svcs='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./configure_svcs.sh"'
 build_svcs(){
 export_lbb_version_info
-colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./build.sh"
+"$NEW_LBB_UTILS_HOST_PATH"/build/format.sh || { echo "format failed" && return 1 };
+docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./build.sh"
 }
 # build_bsp(){
 # colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd /kt/src/experimental/aravind/bsp/build;./build.sh"
 # }
-alias clean_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_svcs.sh"'
+alias clean_svcs='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./clean_svcs.sh"'
 
 # Test svcs
-alias configure_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./configure_tests.sh"'
-alias test_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh"'
-alias test_svcs_random='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh vr"'
+alias configure_tests='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./configure_tests.sh"'
+alias test_svcs='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh"'
+alias test_svcs_random='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh vr"'
+# alias install_docker_lbb='sudo apk add --update docker openrc;sudo rc-update add docker boot;sudo service docker start'
 
 test_svcs_specific(){
     if [ -z "$1" ];then
@@ -238,20 +245,20 @@ test_svcs_specific(){
     colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./test.sh $1 $REPEAT_COUNT"
 }
 
-alias clean_tests='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./clean_tests.sh"'
-alias shellcheck_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./pipeline.sh"'
+alias clean_tests='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./clean_tests.sh"'
+alias shellcheck_lbb='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test/;./pipeline.sh"'
 
 
 # Deploy svcs
-alias ota_lbb='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_all.sh"'
-alias ota_bsp='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_bsp.sh"'
-alias ota_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_svcs.sh"'
-alias ota_switch='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_switch.sh"'
-alias ota_sd='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_sd.sh"'
+alias ota_lbb='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_all.sh"'
+alias ota_bsp='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_bsp.sh"'
+alias ota_svcs='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_svcs.sh"'
+alias ota_switch='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_switch.sh"'
+alias ota_sd='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/deploy/;./deploy_sd.sh"'
 
 
 # cppcheck
-alias cppcheck_svcs='colima ssh -- nerdctl exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./cppcheck.sh"'
+alias cppcheck_svcs='docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/test;./cppcheck.sh"'
 
 
 alias dbs='build_svcs'
@@ -529,7 +536,7 @@ vehicle_stop(){
 
 serial()
 {
-  putty -load LBB$1&	
+  putty -load LBB$1&
 }
 
 #serial()
@@ -712,7 +719,7 @@ cphrw()
 {
   {build_svcs || return;};fwr "$1";cphr $LBB_VERSION "$1";
 }
-# Wifi 
+# Wifi
 cpwtw()
 {
   {build_svcs || return;};fw "$1";cpwi $LBB_VERSION "$1";
@@ -752,7 +759,7 @@ echo "*******************************"
 }
 
 sync_lbb_bin(){
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_lbb_bin_files_to_host.sh"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_lbb_bin_files_to_host.sh"
 }
 
 cpbin(){
@@ -771,7 +778,7 @@ cpbin(){
     build_svcs || return
     sync_lbb_bin
     svcs;cd build-svcs
-    
+
     file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs -type f -executable -name "$2" -not -path "CMake*" -not -path "./deploy/*")
     if [ -z $file ];then
       echo "ERROR: cannot find file $2"
@@ -800,9 +807,9 @@ cpsrc(){
     fi
 
     ssh -t $1 -o "ServerAliveInterval 2" 'echo "Datla";exit'
-    
+
     svcs
-    
+
     file=$(find ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs -type f -name "$2" -not -path "CMake*" -not -path "./build-svcs/*" ! -path "*/deploy/*")
     if [ -z $file ];then
       echo "ERROR: cannot find file $2"
@@ -824,7 +831,7 @@ cpgps()
   build_svcs || return
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktgpsd;exit'
   file_path="ktdaqd/sensors/gnss/ktgnssd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/gnss/ktgnssd $1:/usr/bin
 #  scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/cell_init.sh $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktgpsd;exit'
@@ -835,7 +842,7 @@ cphwd()
   build_svcs || return
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop kthwd;exit'
   file_path="ktdaqd/nodes/kthw/kthwd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/kthw/kthwd $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start kthwd;exit'
 }
@@ -845,7 +852,7 @@ cpetap()
   build_svcs || return
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktetapd;exit'
   file_path="ktdaqd/nodes/etap/ktetapd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/nodes/etap/ktetapd $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktetapd;exit'
 }
@@ -862,10 +869,10 @@ cpsubs()
 {
   build_svcs || return
   file_path="ktdaqd/eventgen/test_apps/subsTest"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   file_path="kthw/hw_test/CellFreqTest"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/test_apps/subsTest $1:/usr/bin
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/kthw/hw_test/CellFreqTest $1:/usr/bin
@@ -877,9 +884,9 @@ cpcell()
 {
   build_svcs || return
   ssh -t $1 -o "ServerAliveInterval 2" 'cell_init.sh stop;exit'
-  
+
   file_path="ktdaqd/sensors/cell/ktcelld"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/sensors/cell/ktcelld $1:/usr/bin
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/kthw/scripts/cell-modem/hw_scripts/*.s* $1:/usr/bin
@@ -891,7 +898,7 @@ cpstream()
   build_svcs || return
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktstreamd;exit'
   file_path="ktdaqd/eventgen/stream/ktstreamd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/stream/ktstreamd $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktstreamd;exit'
 }
@@ -901,13 +908,13 @@ cprelay()
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktrelayd;systemctl stop kteldd;systemctl stop ktrebootd;exit'
 
   file_path="ktrelayd/relay/ktrelayd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   file_path="ktdaqd/eventgen/eld/kteldd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   file_path="ktdaqd/eventgen/reboot/ktrebootd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
 
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktrelayd/relay/ktrelayd $1:/usr/bin
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/ktdaqd/eventgen/eld/kteldd $1:/usr/bin
@@ -920,7 +927,7 @@ cpiot()
   build_svcs || return
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl stop ktiotd;exit'
   file_path="ktrelayd/iot/ktiotd"
-  colima nerdctl exec -- -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
+  docker exec -it ubuntu-focal bash -c "cd $LBB_UTILS_CONTAINER_PATH/build;./sync_built_file_from_vm.sh $file_path"
   scp ~/code/Keeptruckin/kt/src/embedded/lbb_sdk/svcs/build-svcs/$file_path $1:/usr/bin
   ssh -t $1 -o "ServerAliveInterval 2" 'systemctl start ktiotd;exit'
 }
@@ -930,6 +937,61 @@ lbb_get_journal()
     ssh -t $1 -o "ServerAliveInterval 2" 'cd /tmp;journalctl -b 0 -a > lbb_journal_$(lbb_info.sh | grep SERIAL_NUMBER | cut -d " " -f 2)_$(date +%s).log;exit'
     scp $1:"/tmp/lbb_journal_*.log" ~/Documents/lbb_logs/
 }
+
+lbb_get_prev_journal()
+{
+    ssh -t $1 -o "ServerAliveInterval 2" 'cd /tmp;journalctl -b 1 -a > lbb_journal_$(lbb_info.sh | grep SERIAL_NUMBER | cut -d " " -f 2)_$(date +%s).log;exit'
+    scp $1:"/tmp/lbb_journal_*.log" ~/Documents/lbb_logs/
+}
+
+
+#################### VIA #######################
+via_vm_run(){
+     ssh colima-via "$1"
+}
+
+via_docker_run(){
+    ssh ubuntu-via "$1"
+}
+
+alias via_container_rm='via_vm_run "nerdctl rm ubuntu-via"'
+alias via_image_rm='via_vm_run "nerdctl image rm via"'
+alias via_container_stop='via_vm_run "nerdctl stop ubuntu-via"'
+alias via_container_start='via_vm_run "nerdctl start ubuntu-via"'
+
+
+via_container_remove(){
+    via_container_stop
+    via_container_rm
+    via_image_rm
+}
+
+via_container_create()
+{
+via_vm_run "cd /Users/aravind.datla/Documents/aravind/experimental/via/;./setup_container.sh"
+sleep 5
+via_docker_run "cd /via_utils/setup;sudo ./setup_toolchain.sh"
+# container_install_essentials
+}
+
+start_via(){
+    colima start via
+}
+
+stop_via(){
+    colima stop via
+}
+
+delete_via(){
+    colima delete via
+    echo "y will delete the config file as well"
+}
+
+build_via()
+{
+    via_docker_run "cd /via_utils/build;./build.sh"
+}
+######################################################
 
 lbb_get_prev_journal()
 {
@@ -1035,3 +1097,7 @@ source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 # export SNOWFLAKE_ACCOUNT='keeptruckin'
 # export SNOWFLAKE_USER='aravind.datla@gomotive.com'
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+
+# Jira config file at /Users/aravind.datla/.config/.jira/.config.yml
+
+export DOCKER_HOST=$(limactl list lbb --format 'unix://{{.Dir}}/sock/docker.sock')

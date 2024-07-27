@@ -1,0 +1,44 @@
+diff --git a/radar-base.sh b/radar-base.sh
+index 61503fd..2bf8ff8 100755
+--- a/radar-base.sh
++++ b/radar-base.sh
+@@ -218,12 +218,29 @@ branch_name() {
+   name="$(git symbolic-ref --short HEAD 2>/dev/null)"
+   retcode="$?"
+   if [[ "$retcode" == "0" ]]; then
+-    printf %s "$name"
++    printf "%s" $name
+   else
+     return 1
+   fi
+ }
+ 
++branch_name_truncated() {
++  name="$(branch_name)"
++  retcode="$?"
++  if [ ${#name} -gt 1 ]; then
++    MAX_BRANCH_LEN=30
++    if [ ${#name} -gt $MAX_BRANCH_LEN ];then
++      name=$(echo "$name" | cut -c 1-30)
++      printf "%s..." $name
++    else
++      printf "%s" $name
++    fi
++
++  else
++    printf "ERROR:branch_name"
++  fi
++}
++
+ branch_ref() {
+   if is_repo; then
+     printf '%s' "$(branch_name || commit_short_sha)"
+@@ -513,7 +530,7 @@ zsh_color_remote_commits() {
+ 
+ readable_branch_name() {
+   if is_repo; then
+-    printf $PRINT_F_OPTION "$COLOR_BRANCH$(branch_name || printf '%s' "detached@$(commit_short_sha)")$RESET_COLOR_BRANCH"
++    printf $PRINT_F_OPTION "$COLOR_BRANCH$(branch_name_truncated || printf '%s' "detached@$(commit_short_sha)")$RESET_COLOR_BRANCH"
+   fi
+ }
+ 

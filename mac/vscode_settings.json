@@ -1,0 +1,452 @@
+{
+    "yaml.schemas": {
+        "file:///Users/aravind.datla/.vscode/extensions/ibm.zopeneditor-3.2.0/resources/zapp-schema-1.0.0.json": [
+            "zapp.yaml"
+        ],
+        "file:///Users/aravind.datla/.vscode/extensions/ibm.zopeneditor-3.2.0/resources/zcodeformat-schema-0.0.1.json": [
+            "zcodeformat.yaml"
+        ],
+        "file:///Users/aravind.datla/.vscode/extensions/atlassian.atlascode-3.0.3/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
+    },
+    "git.autofetch": true,
+    "editor.renderWhitespace": "all",
+    "terminal.integrated.cursorStyle": "line",
+    "editor.mouseWheelZoom": true,
+    "git.confirmSync": false,
+    "files.trimTrailingWhitespace": true,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "markdown-preview-github-styles.colorTheme": "light",
+    "sourcegraph.url": "https://src.corp.keeptruckin.com",
+    "git.showPushSuccessNotification": true,
+    "explorer.confirmDelete": false,
+    "diffEditor.renderSideBySide": false,
+    "editor.cursorBlinking": "expand",
+    "git.enableSmartCommit": true,
+    "sync.gist": "0212ad8ff0c836fd2195731a6e17b0ed",
+    "sync.forceUpload": true,
+    "editor.fontSize": 15,
+    "files.autoSave": "afterDelay",
+    "[c]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "cmake.configureArgs": [
+        "-B/home/kt/kt/src/embedded/lbb_sdk/svcs/build-svcs",
+        "-DCMAKE_TOOLCHAIN_FILE=/home/kt/kt/src/embedded/cmake_toolchains/linaro_linux_toolchain.cmake",
+        "-DCMAKE_SYSROOT=/home/kt/kt/src/embedded/sysroot",
+        "-GNinja",
+        "-S/home/kt/kt/src/embedded/lbb_sdk/svcs/"
+    ],
+    "multiCommand.commands": [
+        {
+            "command": "multiCommand.makeRoom",
+            "sequence": [
+                "workbench.action.toggleSidebarVisibility",
+                "workbench.action.toggleActivityBarVisibility"
+            ]
+        }
+    ],
+    // "editor.fontFamily": "Cascadia Code",
+    // "editor.fontFamily": "Monaspace Neon Var",
+    // "editor.fontVariations": "'wght' 500, 'slnt' -5, 'wdth' 100",
+    "editor.fontFamily": "JetBrains Mono",
+    "editor.fontVariations": "'wght' 600, 'wdth' 100",
+    // "editor.fontVariations": true,
+    "files.exclude": {
+        "**/.*": true,
+        "**/.deps": true,
+        "**/.dirstamp": true,
+        "**/.fingerprint": true,
+        "**/.vscode": true,
+        "**/*.cargo*": true,
+        "**/*.o": true,
+        "**/*.user": true,
+        "**/autom4te.cache": true,
+        "**/browse.vc.db": true,
+        "**/build-svcs/": true,
+        "**/build-tests/": true,
+        "**/cmake-build-debug/**": true,
+        "**/CMakeFiles": true,
+        "**/compile": true,
+        // "**/config.*": true,
+        "**/deploy/": true,
+        "**/deps": true,
+        "**/incremental": true,
+        "**/Makefile": true,
+        "**/Makefile.in": true,
+        "**/rls": true,
+        "**/svcs.*": true,
+        "**/target/": true,
+        "**/test-svcs/": true
+    },
+    "files.watcherExclude": {
+        "**/.vscode/**": true,
+        "**/cmake-build-debug/**": true,
+        "**/deploy/**": true,
+        "**/target/": true,
+        "**/test-svcs/": true,
+        "svcs/build-svcs/": true,
+        "svcs/build-tests/": true
+    },
+    "search.exclude": {
+        "**/*.Po": true,
+        "**/build_svcs": true,
+        "**/build-tests": true,
+        "**/deploy/**": true,
+        "**/fs": true,
+        "**/ota": true,
+        "**/staging": true,
+        "**/target/": true,
+        "**/test-svcs/": true,
+        "build-svcs/**": true,
+        "build-tests/**": true
+    },
+    "cSpell.language": "en,en-US,en-GB",
+    "cSpell.enabledLanguageIds": [
+        "asciidoc",
+        "c",
+        "cpp",
+        "csharp",
+        "css",
+        "git-commit",
+        "go",
+        "handlebars",
+        "haskell",
+        "html",
+        "jade",
+        "java",
+        "javascript",
+        "javascriptreact",
+        "json",
+        "jsonc",
+        "latex",
+        "less",
+        "markdown",
+        "php",
+        "plaintext",
+        "pug",
+        "python",
+        "restructuredtext",
+        "rust",
+        "scala",
+        "scss",
+        "text",
+        "typescript",
+        "typescriptreact",
+        "yaml",
+        "yml"
+    ],
+    "cSpell.languageSettings": [
+        // This one works with python
+        {
+            "languageId": "python",
+            "includeRegExpList": [
+                "/#.*/",
+                "/\"\"\"(.*?\\n?)+?\"\"\"/g",
+                "/'''(.*?\\n?)+?'''/g"
+            ]
+        },
+        // this one works with javascript, C, typescript, etc,
+        // but you need to copy it and change the language id.
+        {
+            "languageId": "javascript",
+            "includeRegExpList": [
+                "/\\/\\/.*/",
+                "/\\/\\*(.*?\\n?)+?\\*\\//g"
+            ]
+        },
+        // Use with cpp or c files
+        {
+            "languageId": "cpp,c",
+            // Turn off compound words, because it is only checking strings.
+            "allowCompoundWords": false,
+            // Only check comments and strings
+            "includeRegExpList": [
+                "CStyleComment",
+                "string"
+            ],
+            // Exclude includes, because they are also strings.
+            "ignoreRegExpList": [
+                "/#include.*/"
+            ]
+        }
+    ],
+    "atlascode.jira.jqlList": [
+        {
+            "id": "142fcb88-581e-49f6-8b09-5fa26bd41a28",
+            "enabled": true,
+            "name": "My k2labs Issues",
+            "query": "assignee = currentUser() ORDER BY lastViewed DESC ",
+            "siteId": "98be4c6e-817f-4ba3-88a6-12cff70a8b7e",
+            "monitor": true
+        }
+    ],
+    "cSpell.userWords": [
+        "succusseful",
+        "Truckin"
+    ],
+    "editor.tabCompletion": "on",
+    "editor.detectIndentation": false,
+    "vsicons.dontShowNewVersionMessage": true,
+    "update.mode": "none",
+    "search.collapseResults": "alwaysCollapse",
+    "shellcheck.disableVersionCheck": true,
+    "shellcheck.exclude": [
+        "1090",
+        "1091"
+    ],
+    // "git.useEditorAsCommitInput": false
+    // "shellcheck.run": "onSave",
+    "dash.fileNameToDocsetMap": {},
+    "editor.fontLigatures": "'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08', 'calt', 'dlig'",
+    // "terminal.integrated.fontWeightBold": "1000",
+    // "terminal.integrated.fontFamily": "Cascadia Code PL",
+    // "terminal.integrated.fontWeight": "normal",
+    // "terminal.integrated.fontWeightBold": "normal",
+    "terminal.integrated.fontFamily": "Fira Code",
+    "terminal.integrated.fontWeight": "bold",
+    // "terminal.integrated.fontWeight": "bold",
+    "terminal.integrated.fontSize": 14,
+    "go.formatTool": "goimports",
+    "go.useLanguageServer": true,
+    "editor.renderControlCharacters": true,
+    "outline.problems.colors": false,
+    // "terminal.integrated.shell.linux": "/bin/bash",
+    "workbench.colorTheme": "Noctis Uva ft. Winter is comming",
+    "workbench.colorCustomizations": {
+        "[Noctis Uva ft. Winter is comming]": {
+            "editor.lineHighlightBackground": "#003452",
+            // "scrollbarSlider.activeBackground":"#fff000",
+            // "scrollbarSlider.hoverBackground": "#fff000",
+            // "editorOverviewRuler.border": "#ff0000",
+            // "scrollbarSlider.hoverBackground": "#ff0000",
+            "editorCursor.foreground": "#ffff00",
+            "scrollbarSlider.activeBackground": "#808a24",
+                    // "scrollbarSlider.background": "#888888"
+        }
+    },
+    "[search-result]": {},
+    "go.addTags": {},
+    // "C_Cpp.updateChannel": "Insiders",
+    // "C_Cpp.default.includePath": [
+    //     "/home/aravind/KeepTruckin/kt/src/embedded/lbb_sdk/lbb_kernel/KERNEL/include"
+    // ],
+    "atlascode.bitbucket.enabled": false,
+    "clang-tidy.executable": "/usr/bin/clang-tidy",
+    "clang-tidy.checks": [],
+    // "editor.codeActionsOnSave": null,
+    "cmake.configureOnOpen": false,
+    "cmake.default.buildDirectory": "",
+    "cmake.generator": "Ninja",
+    "cmake.build.targetDependencies": [],
+    "cmake.preferredGenerators": [],
+    "workbench.editorAssociations": {
+        "*.ipynb": "jupyter-notebook"
+    },
+    "C_Cpp.workspaceSymbols": "All",
+    "C_Cpp.default.cStandard": "c11",
+    "cmake.cpptools.intelliSenseMode": "clang-x86",
+    "launch": {
+        "configurations": [],
+        "compounds": []
+    },
+    "extensions.autoUpdate": false,
+    "editor.minimap.enabled": false,
+    "notebook.cellToolbarLocation": {
+        "default": "right",
+        "jupyter-notebook": "left"
+    },
+    "workbench.iconTheme": "material-icon-theme",
+    "redhat.telemetry.enabled": false,
+    "atlascode.jira.explorer.nestSubtasks": true,
+    "C_Cpp.intelliSenseCacheSize": 1024,
+    "settingsSync.ignoredSettings": [
+        "-C_Cpp.intelliSenseCacheSize"
+    ],
+    "atlascode.jira.lastCreateSiteAndProject": {
+        "siteId": "98be4c6e-817f-4ba3-88a6-12cff70a8b7e",
+        "projectKey": "LBB"
+    },
+    "glassit.alpha": 220,
+    "C_Cpp.codeAnalysis.clangTidy.checks.enabled": [
+        "misc-*"
+    ],
+    "C_Cpp.errorSquiggles": "enabled",
+    "comments.openView": "never",
+    "githubPullRequests.commentExpandState": "collapseAll",
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "atlascode.jira.enabled": true,
+    // "editor.language.colorizedBracketPairs": [
+    // ],
+    "editor.semanticTokenColorCustomizations": {},
+    "githubPullRequests.pullBranch": "never",
+    "atlascode.jira.explorer.refreshInterval": 1,
+    "jupyter.interactiveWindow.creationMode": "perFile",
+    "editor.indentSize": "tabSize",
+    "editor.guides.bracketPairs": true,
+    "editor.codeActionsOnSave": {},
+    "workbench.sideBar.location": "right",
+    "zowe.ds.history": {
+        "persistence": true,
+        "favorites": [],
+        "history": [],
+        "sessions": [
+            "LearnCOBOL"
+        ],
+        "templates": [],
+        "fileHistory": [
+            "[LEARNCOBOL]: Z95756.JCL(HELLO)",
+            "[LEARNCOBOL]: Z95756.CBL(HELLO)"
+        ],
+        "searchHistory": [
+            "Z95756",
+            "Z99998"
+        ]
+    },
+    "zowe.uss.history": {
+        "persistence": true,
+        "favorites": [],
+        "history": [],
+        "sessions": [
+            "LearnCOBOL"
+        ],
+        "templates": [],
+        "fileHistory": [],
+        "searchHistory": []
+    },
+    "zowe.jobs.history": {
+        "persistence": true,
+        "favorites": [],
+        "history": [],
+        "sessions": [
+            "LearnCOBOL"
+        ],
+        "templates": [],
+        "fileHistory": [],
+        "searchHistory": []
+    },
+    "zowe.settings.version": 2,
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/zapp.json"
+            ],
+            "url": "file:///Users/aravind.datla/.vscode/extensions/ibm.zopeneditor-3.2.0/resources/zapp-schema-1.0.0.json"
+        },
+        {
+            "fileMatch": [
+                "/zcodeformat.json"
+            ],
+            "url": "file:///Users/aravind.datla/.vscode/extensions/ibm.zopeneditor-3.2.0/resources/zcodeformat-schema-0.0.1.json"
+        }
+    ],
+    "files.associations": {
+        "*.COBOL*": "cobol",
+        "*.COB*": "cobol",
+        "*.COBCOPY*": "cobol",
+        "*.COPYBOOK*": "cobol",
+        "*.COPY*": "cobol",
+        "*.PL1*": "pl1",
+        "*.PLI*": "pl1",
+        "*.INC*": "pl1",
+        "*.INCLUDE*": "pl1",
+        "*.JCL*": "jcl",
+        "*.ASM*": "hlasm",
+        "*.ASSEMBLE*": "hlasm",
+        "*.HLASM*": "hlasm",
+        "*.HLA*": "hlasm",
+        "*.MACLIB*": "hlasm",
+        "*.EXEC*": "rexx",
+        "*.REXX*": "rexx",
+        "*.REXXINC*": "rexx",
+        "*.copyasm": "hlasm",
+        "*.macasm": "hlasm",
+        "*.bms": "hlasm",
+        "*.rex": "rexx",
+        "*.rexx": "rexx",
+        "*.excalidraw": "json",
+        "*.excalidrawlib": "json",
+        "fake_mqtt.h": "c",
+        "fake_sd_journal_print.h": "c",
+        "bt_sdp_utils.h": "c",
+        "sdp.h": "c",
+        "lbb_utils.h": "c",
+        "etap_pub_data.h": "c",
+        "fake_etap_notification.h": "c",
+        "lbb_math_utils.h": "c",
+        "helper_functions.h": "c",
+        "dpe_candidate_algo.h": "c",
+        "config.h": "c",
+        "c_queue_double.h": "c",
+        "c_queue_tm.h": "c",
+        "c_queue_standard_speed.h": "c",
+        "complex": "c",
+        "math.h": "c",
+        "dpe_tracker.h": "c",
+        "sd-journal.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "vector": "c",
+        "iterator": "c",
+        "lbb_daemon.h": "c",
+        "dev_util.h": "c",
+        "stdlib.h": "c",
+        "lbb_str.h": "c",
+        "lbb_assert.h": "c",
+        "lbb_journal.h": "c",
+        "led_pattern_pto_change.h": "c",
+        "led_pattern_gps_state.h": "c",
+        "led_pattern_mobile_connected.h": "c",
+        "led_pattern_low_power.h": "c",
+        "dpe_candidate_tracker.h": "c",
+        "ctime": "c",
+        "locale": "c",
+        "type_traits": "c",
+        "drv_perf_tracker_test_data.h": "c",
+        "log.h": "c",
+        "fake_jobs.h": "c",
+        "pp_engine_state.h": "c",
+        "wakeup_src_info.h": "c",
+        "vehicle_bus_data_types.h": "c"
+    },
+    "clang-format.executable": "/opt/homebrew/bin/clang-format",
+    // "zopeneditor.JAVA_HOME": "/opt/homebrew/Cellar/openjdk/20.0.1/libexec/openjdk.jdk/Contents/Home",
+    // "zopeneditor.welcomePage.show": false,
+    "editor.inlineSuggest.enabled": true,
+    "gitlens.graph.layout": "editor",
+    "terminal.integrated.env.osx": {},
+    "workbench.editor.enablePreview": false,
+    "workbench.layoutControl.enabled": false,
+    "window.commandCenter": false,
+    "explorer.confirmDragAndDrop": false,
+    "cmake.automaticReconfigure": false,
+    "cmake.configureOnEdit": false,
+    "editor.accessibilitySupport": "off",
+    "git.useEditorAsCommitInput": false,
+    "window.zoomLevel": 1,
+    "scm.showIncomingChanges": "never",
+    "scm.showOutgoingChanges": "never",
+    "editor.formatOnSaveMode": "modifications",
+    "editor.formatOnPaste": true,
+    // "workbench.colorCustomizations": {
+    //     // "scrollbarSlider.activeBackground": "#808a24",
+    //     "scrollbarSlider.background": "#888888"
+    // }
+    // "editor.fontSize": 17,
+    // "editor.lineHeight": 25,
+    // "editor.letterSpacing": 0.5,
+    // "files.trimTrailingWhitespace": true,
+    // "editor.fontWeight": "400",
+    // //"prettier.eslintIntegration": true,
+    // "editor.cursorStyle": "line",
+    // "editor.cursorWidth": 5,
+    // "editor.cursorBlinking": "solid",
+    // Very important: Install this plugin: https://github.com/be5invis/vscode-custom-css
+    // you'll need to change this to an absolute path on your computer
+    // "vscode_custom_css.imports": ["file:///home/aravind/Documents/custom.css"],
+    // "vscode_custom_css.policy": true,
+    // "editor.renderWhitespace": "all",
+}
+

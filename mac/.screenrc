@@ -1,0 +1,5 @@
+defscrollback 1000
+defgr off
+logfile /Users/aravind.datla/Documents/screen/screen_%Y-%m-%d_%c:%s.log
+logfile flush 5
+log on

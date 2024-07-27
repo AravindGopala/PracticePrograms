@@ -1,0 +1,28 @@
+{
+	"bold_folder_labels": true,
+	"caret_extra_bottom": 2,
+	"caret_extra_top": 2,
+	"caret_style": "phase",
+	"color_scheme": "Packages/Theme - Cobalt2/cobalt2.tmTheme",
+	"font_face": "Cascadia Code",
+	"font_size": 17,
+	"highlight_line": true,
+	"highlight_modified_tabs": true,
+	"ignored_packages":
+	[
+		"Vintage",
+	],
+	"indent_guide_options":
+	[
+		"draw_normal",
+		"draw_active"
+	],
+	"line_padding_bottom": 1,
+	"line_padding_top": 1,
+	"sidebar_font_big": true,
+	"theme": "Cobalt2.sublime-theme",
+	"find_selected_text": true,
+	"open_files_in_new_window": false,
+	"update_check": false,
+	"index_files": true,
+}
