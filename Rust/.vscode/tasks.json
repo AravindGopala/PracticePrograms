@@ -5,7 +5,8 @@
             "label": "Cargo_build",
             // "label": "bash",
             "type": "shell",
-            "command": "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up} && cargo build -q",
+            "command": "cargo build -q --manifest-path=${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}/Cargo.toml",
+            // "command": "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up} && cargo build -q",
             "promptOnClose": false,
             // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
             // "cwd":"${workspaceFolder}",
@@ -29,12 +30,13 @@
             "label": "Cargo_Run",
             // "label": "bash",
             "type": "shell",
-            "command": [
-                "{clear;echo \"-------------------$(date)-------------------\"};",
-                "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}",
-                "&& {cargo run -q || {echo \"--------------------------------------------------------\";exit 0};}",
-                "&& {echo \"------------------------------------------------------------------\"}"
-            ],
+            "command": "cargo run -q --manifest-path=${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}/Cargo.toml",
+            // "command": [
+            //     "{clear;echo \"-------------------$(date)-------------------\"};",
+            //     "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}",
+            //     "&& {cargo run -q || {echo \"--------------------------------------------------------\";exit 0};}",
+            //     "&& {echo \"------------------------------------------------------------------\"}"
+            // ],
             "promptOnClose": false,
             // "args": ["--manifest-path=${workspaceFolder}/${relativeFileDirname}/../Cargo.toml"],
             // "cwd":"${workspaceFolder}",
