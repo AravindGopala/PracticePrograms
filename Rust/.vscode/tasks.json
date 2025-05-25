@@ -30,7 +30,9 @@
             "label": "Cargo_Run",
             // "label": "bash",
             "type": "shell",
-            "command": "cargo run -q --manifest-path=${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}/Cargo.toml",
+            "command": "(clear;echo \"-------------------$(date)-------------------\"; \
+                        (cargo run -q --manifest-path=${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}/Cargo.toml);\
+                        echo \"------------------------------------------------------------------\")",
             // "command": [
             //     "{clear;echo \"-------------------$(date)-------------------\"};",
             //     "cd ${workspaceFolder}/${command:extension.commandvariable.file.fileDirBasename1Up}",
